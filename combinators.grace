@@ -2,11 +2,19 @@
 //SUPER-EVIL GLOBAL VARIABLE Courtesy of MR CHARLES WEIR
 var currentIndentation := 0 
 
-type Object = { }
+// type Object = { }
 
 ////////////////////////////////////////////////////////////
+type InputStream = { 
+ take( _ ) -> String
+ rest ( _ ) -> InputStream
+ atEnd -> Boolean
+ indentation -> Number
+} 
+
+
 class stringInputStream(string : String, position' : Number) {
- def brand = "stringInputStream"
+ def brand = "stringInputStrea"
  def position : Number is readable = position'
 
  method take(n : Number) -> String {
@@ -50,27 +58,27 @@ class stringInputStream(string : String, position' : Number) {
 ////////////////////////////////////////////////////////////
 // parse results
 
-// type ParseSuccessType = {
-//  brand -> String
-//  next -> InputStream
-//  result -> String
-//  succeeded -> Boolean
-//  resultUnlessFailed(Block) -> ParseResult 
-// }
+type ParseSuccessType = {
+  brand -> String
+  next -> InputStream
+  result -> String
+  succeeded -> Boolean
+  resultUnlessFailed( _ ) -> ParseResult 
+}
 
-// type ParseFailureType = {
-//  brand -> String
-//  message -> String
-//  succeded -> Boolean
-//  resultUnlessFailed(Block) -> ParseResult 
-// }
+type ParseFailureType = {
+  brand -> String
+  message -> String
+  succeded -> Boolean
+  resultUnlessFailed( _ ) -> ParseResult 
+}
 
-// type ParseResult = (ParseSuccessType | ParseFailureType)
+//type ParseResult = (ParseSuccessType | ParseFailureType)
 
-// type ParseResult = ParseFailureType
+type ParseResult = ParseFailureType
 
-class ParseSuccess(next', result') {
- def brand = "ParseSuccess"
+class parseSuccess(next', result') {
+ def brand = "parseSuccess"
  def next is public  = next' 
  def result is public = result'
  method succeeded { return true }
@@ -79,8 +87,8 @@ class ParseSuccess(next', result') {
  }
 }
 
-class ParseFailure(message') {
- def brand = "ParseFailure" 
+class parseFailure(message') {
+ def brand = "parseFailure" 
  def message is public = message'
  method succeeded { return false }
  method resultUnlessFailed (failBlock : Block) { 
@@ -92,47 +100,47 @@ class ParseFailure(message') {
 ////////////////////////////////////////////////////////////
 // parsers
 
-class AbstractParser {
- def brand = "AbstractParser"
+class abstractParser {
+ def brand = "abstractParser"
  method parse(in) { }
 
- method ~(other) {SequentialParser(self,other)}
- method |(other) {AlternativeParser(self,other)}
+ method ~(other) {sequentialParser(self,other)}
+ method |(other) {alternativeParser(self,other)}
 }
 
-// type Parser = { 
-//  parse(InputStream) -> ParseResult
-//  ~(Parser) -> Parser
-//  |(Parser) -> Parser
-// }
+type Parser = { 
+  parse(_ : InputStream) -> ParseResult
+  ~(_ : Parser) -> Parser
+  |(_ : Parser) -> Parser
+}
 
 // parse just a token - basically a string, matching exactly
-class TokenParser(tken) {
- inherits AbstractParser
- def brand = "TokenParser"
+class tokenParser(tken) {
+ inherits abstractParser
+ def brand = "tokenParser"
  method parse(in) {
    def size = tken.size
    if (in.take(size) == tken) then {
-      return ParseSuccess(in.rest(size), "{in.take(size)}" )
+      return parseSuccess(in.rest(size), "{in.take(size)}" )
      } else {
-      return ParseFailure(
+      return parseFailure(
         "expected {tken} got {in.take(size)} at {in.position}")
    }
  }
 }
 
 // get at least one whitespace
-class WhiteSpaceParser {
- inherits AbstractParser 
- def brand = "WhiteSpaceParser"
+class whiteSpaceParser {
+ inherits abstractParser 
+ def brand = "whiteSpaceParser"
  method parse(in) {
    var current := in
    while {current.take(1) == " "} 
      do {current := current.rest(1)}
    if (current != in) then {
-      return ParseSuccess(current, " ")
+      return parseSuccess(current, " ")
      } else {
-      return ParseFailure(
+      return parseFailure(
         "expected w/s got {in.take(5)} at {in.position}")
    }
  }
@@ -140,37 +148,37 @@ class WhiteSpaceParser {
 
 
 // parser single character from set of acceptable characters (given as a string)
-class CharacterSetParser(charSet) {
- inherits AbstractParser
- def brand = "CharacterSetParser"
+class characterSetParser(charSet) {
+ inherits abstractParser
+ def brand = "characterSetParser"
 
  method parse(in) {
    def current = in.take(1) 
    
    for (charSet) do { c -> 
       if (c == current) then {
-        return ParseSuccess(in.rest(1), current ) }
+        return parseSuccess(in.rest(1), current ) }
      }
 
-   return ParseFailure(
+   return parseFailure(
         "expected \"{charSet}\" got {current} at {in.position}")
  }
 }
 
 //does *not* eat whitespace!
-class GraceIdentifierParser { 
- inherits AbstractParser
+class graceIdentifierParser { 
+ inherits abstractParser
 
- def brand = "GraceIdentifierParser"
+ def brand = "graceIdentifierParser"
 
  method parse(in) {
    if (in.take(1) == "_") then {
-      return ParseSuccess(in.rest(1), "_")                 
+      return parseSuccess(in.rest(1), "_")                 
    }
    var current := in
 
    if (! isletter(in.take(1))) then {
-      return ParseFailure(
+      return parseFailure(
         "expected GraceIdentifier got {in.take(5)}... at {in.position}")
    }
    
@@ -187,16 +195,16 @@ class GraceIdentifierParser {
         // print "chlr: <{char}>  current.atEnd <{current.atEnd}>"
    }
 
-   return ParseSuccess(current, id)
+   return parseSuccess(current, id)
  }
 
 }
 
 
 // dunno why this is here?
-class DigitStringParser { 
- inherits AbstractParser
- def brand = "DigitStringParser"
+class digitStringParser { 
+ inherits abstractParser
+ def brand = "digitStringParser"
  method parse(in) {
    
    var current := in
@@ -211,7 +219,7 @@ class DigitStringParser {
    }
 
    if (! (isdigit(char))) then {
-      return ParseFailure(
+      return parseFailure(
         "expected DigitString got {in.take(5)}... at {in.position}")
    }
 
@@ -222,54 +230,54 @@ class DigitStringParser {
         char := current.take(1)
    }
 
-   return ParseSuccess(current, id)
+   return parseSuccess(current, id)
  }
 
 }
 
 
 
-class SequentialParser(left, right) { 
- inherits AbstractParser
- def brand = "SequentialParser"
+class sequentialParser(left, right) { 
+ inherits abstractParser
+ def brand = "sequentialParser"
  method parse(in) {
     def leftResult = left.parse(in)
           .resultUnlessFailed {f -> return f}
     def rightResult = right.parse(leftResult.next)
           .resultUnlessFailed {f -> return f}
-    return ParseSuccess(rightResult.next, 
+    return parseSuccess(rightResult.next, 
            leftResult.result ++ rightResult.result)
  }
 }
 
 
-class OptionalParser(subParser) { 
- inherits AbstractParser
- def brand = "OptionalParser"
+class optionalParser(subParser) { 
+ inherits abstractParser
+ def brand = "optionalParser"
  method parse(in) {
     return (subParser.parse(in)
           .resultUnlessFailed {f -> 
-               return ParseSuccess(in, "")})
+               return parseSuccess(in, "")})
 }
 
 }
 
 //match as if SubParser, discard the result
-class DropParser(subParser) {
- inherits AbstractParser
- def brand = "DropParser"
+class dropParser(subParser) {
+ inherits abstractParser
+ def brand = "dropParser"
  method parse(in) {
     def subRes = subParser.parse(in)
           .resultUnlessFailed {f -> return f}
-    return ParseSuccess(subRes.next, "")
+    return parseSuccess(subRes.next, "")
  }
 
 }
 
 
-class AlternativeParser(left, right) {
- inherits AbstractParser
- def brand = "AlternativeParser"
+class alternativeParser(left, right) {
+ inherits abstractParser
+ def brand = "alternativeParser"
  method parse(in) {
     def leftResult = left.parse(in)
     if (leftResult.succeeded) then {
@@ -282,9 +290,9 @@ class AlternativeParser(left, right) {
 
 //succeeds if both left & right succeed; returns LEFT parse
 //e.g. both(identifier,not(reservedIdentifiers)) -- except that's wrong!
-class BothParser(left, right) {
- inherits AbstractParser
- def brand = "BothParser"
+class bothParser(left, right) {
+ inherits abstractParser
+ def brand = "bothParser"
  method parse(in) {
     def leftResult = left.parse(in)
     if (!leftResult.succeeded) then {return leftResult}
@@ -297,9 +305,9 @@ class BothParser(left, right) {
 
 
 
-class RepetitionParser(subParser) {
- inherits AbstractParser
- def brand = "RepetitionParser"
+class repetitionParser(subParser) {
+ inherits abstractParser
+ def brand = "repetitionParser"
  method parse(in) {
    var current := in
 
@@ -313,16 +321,16 @@ class RepetitionParser(subParser) {
         res := subParser.parse(current)
    }
 
-   return ParseSuccess(current, id)
+   return parseSuccess(current, id)
  }
 
 }
 
 
 
-class ProxyParser(proxyBlock) { 
- inherits AbstractParser
- def brand = "ProxyParser"
+class proxyParser(proxyBlock) { 
+ inherits abstractParser
+ def brand = "proxyParser"
  var subParser := "no parser installed"
  var needToInitialiseSubParser := true
 
@@ -340,7 +348,7 @@ class ProxyParser(proxyBlock) {
 
   //  if (currentIndentation < previousIndentation) then {
   //     print ("??Bad Indentation?? at {in.position}, wanted {previousIndentation} got {currentIndentation}")
-  //     result := ParseFailure("Bad Indentation, wanted {previousIndentation} got {currentIndentation}")
+  //     result := parseFailure("Bad Indentation, wanted {previousIndentation} got {currentIndentation}")
   //  } else {
   result := subParser.parse(in)
   //  }
@@ -354,9 +362,9 @@ class ProxyParser(proxyBlock) {
 
 
 
-class WrappingProxyParser(proxyBlock, string) {
- inherits AbstractParser
- def brand = "WrappingProxyParser"
+class wrappingProxyParser(proxyBlock, string) {
+ inherits abstractParser
+ def brand = "wrappingProxyParser"
  var subParser := "no parser installed"
  var needToInitialiseSubParser := true
 
@@ -370,7 +378,7 @@ class WrappingProxyParser(proxyBlock, string) {
   def result = subParser.parse(in)
   if (!result.succeeded) then {return result}
   
-  return ParseSuccess(result.next, "[{string}{result.result}]")
+  return parseSuccess(result.next, "[{string}{result.result}]")
  }
 
 }
@@ -378,14 +386,14 @@ class WrappingProxyParser(proxyBlock, string) {
 
 
 // get at least one whitespace
-class AtEndParser { 
- inherits AbstractParser
- def brand = "AtEndParser"
+class atEndParser { 
+ inherits abstractParser
+ def brand = "atEndParser"
  method parse(in) {
    if (in.atEnd) then {
-      return ParseSuccess(in, "")
+      return parseSuccess(in, "")
      } else {
-      return ParseFailure(
+      return parseFailure(
         "expected end got {in.take(5)} at {in.position}")
    }
  }
@@ -393,85 +401,85 @@ class AtEndParser {
 }
 
 // succeeds when subparser fails; never consumes input if succeeds
-class NotParser(subParser) {
- inherits AbstractParser
- def brand = "NotParser"
+class notParser(subParser) {
+ inherits abstractParser
+ def brand = "notParser"
  method parse(in) {
     def result = subParser.parse(in)
 
     if (result.succeeded)
-      then {return ParseFailure("Not Parser - subParser succeeded so I failed")}
-      else {return ParseSuccess(in,"")}
+      then {return parseFailure("Not Parser - subParser succeeded so I failed")}
+      else {return parseSuccess(in,"")}
  }
 
 }
 
 
-class GuardParser(subParser, guardBlock) {
- inherits AbstractParser
- def brand = "GuardParser"
+class guardParser(subParser, guardBlock) {
+ inherits abstractParser
+ def brand = "guardParser"
  method parse(in) {
     def result = subParser.parse(in)
 
     if (!result.succeeded) then {return result}
     if (guardBlock.apply(result.result)) then {return result}
-    return  ParseFailure("Guard failure at {in.position}")
+    return  parseFailure("Guard failure at {in.position}")
  }
 
 }
 
 
-class SuccessParser {
- inherits AbstractParser
- def brand = "SuccessParser"
- method parse(in) {return ParseSuccess(in,"!!success!!")}
+class successParser {
+ inherits abstractParser
+ def brand = "successParser"
+ method parse(in) {return parseSuccess(in,"!!success!!")}
 
 }
 
 
 // puts tag into output
-class TagParser(tagx : String) {
- inherits AbstractParser
- def brand = "TagParser"
- method parse(in) {return ParseSuccess(in, tagx)}
+class tagParser(tagx : String) {
+ inherits abstractParser
+ def brand = "tagParser"
+ method parse(in) {return parseSuccess(in, tagx)}
 
 }
 
 // puts tagx around start and end of parse
-class PhraseParser(tagx: String, subParser) {
- inherits AbstractParser
- def brand = "PhraseParser"
+class phraseParser(tagx: String, subParser) {
+ inherits abstractParser
+ def brand = "phraseParser"
  method parse(in) {
     def result = subParser.parse(in)
 
     if (!result.succeeded) then {return result}
 
-    return ParseSuccess(result.next,
+    return parseSuccess(result.next,
               "<" ++ tagx ++ " " ++ result.result ++ " " ++ tagx ++ ">" )
  }
 
 }
 
 
-class IndentationAssertionParser(indent : Number) {
- inherits AbstractParser
- def brand = "IndentationAssertionParser"
+class indentationAssertionParser(indent : Number) {
+ inherits abstractParser
+ def brand = "indentationAssertionParser"
  method parse(in) {
    if (in.indentation == indent) 
-    then {return ParseSuccess(in,"")}
+    then {return parseSuccess(in,"")}
     else { print  "***Asserted indent=={indent}, actual indentation=={in.indentation}"
-           return ParseFailure "Asserted indent=={indent}, actual indentation=={in.indentation}"}
+           return parseFailure "Asserted indent=={indent}, actual indentation=={in.indentation}"}
  }
 }
 
 
-class LineBreakParser(direction) { 
- inherits AbstractParser
- def brand = "LineBreakParser"
+class lineBreakParser(direction) { 
+ inherits abstractParser
+ def brand = "lineBreakParser"
  method parse(in) {
 
   if (in.take(1) != "\n") 
-    then {return ParseFailure "looking for a LineBreak-{direction}, got \"{in.take(1)}\" at {in.position}"}
+    then {return parseFailure "looking for a LineBreak-{direction}, got \"{in.take(1)}\" at {in.position}"}
 
   def rest = in.rest(1) 
 
@@ -484,8 +492,8 @@ class LineBreakParser(direction) {
     
 
   match (actualDirection) 
-     case { _ : direction -> return ParseSuccess(in.rest(1), "<<{direction}>>\n" ) }
-     case { _ -> return ParseFailure "looking for a LineBreak-{direction}, got {actualDirection} at {in.position}"
+     case { _ : direction -> return parseSuccess(in.rest(1), "<<{direction}>>\n" ) }
+     case { _ -> return parseFailure "looking for a LineBreak-{direction}, got {actualDirection} at {in.position}"
      }
 
   Error.raise "Shouldn't happen"
@@ -523,35 +531,35 @@ method isdigit(c) -> Boolean {
 // combinator functions - many of these should be methods
 // on parser but I got sick of copying everything!
 
-method dyn(d : Dynamic) -> Dynamic {return d}
+method dyn(d : Unknown) -> Unknown {return d}
 
 
-def ws = rep1((WhiteSpaceParser) | lineBreak("right"))
-method opt(p : Parser)  {OptionalParser(p)}
-method rep(p : Parser)  {RepetitionParser(p)}
-method rep1(p : Parser) {p ~ RepetitionParser(p)}
-method drop(p : Parser) {DropParser(p)}
+def ws = rep1((whiteSpaceParser) | lineBreak("right"))
+method opt(p : Parser)  {optionalParser(p)}
+method rep(p : Parser)  {repetitionParser(p)}
+method rep1(p : Parser) {p ~ repetitionParser(p)}
+method drop(p : Parser) {dropParser(p)}
 method trim(p : Parser) {drop(opt(ws)) ~ p ~ drop(opt(ws))}
-method token(s : String)  {TokenParser(s)}
+method token(s : String)  {tokenParser(s)}
 //method symbol(s : String) {trim(token(s))}
 method symbol(s : String) {token(s) ~ drop(opt(ws))} // changed to token with following space?
 method rep1sep(p : Parser, q : Parser)  {p ~ rep(q ~ p)}
 method repsep(p : Parser, q : Parser)  {opt( rep1sep(p,q))}
 method repdel(p : Parser, q : Parser)  {repsep(p,q) ~ opt(q)}
-method rule(proxyBlock : Block)  {ProxyParser(proxyBlock)}
-//method rule(proxyBlock : Block) wrap(s : String)  {WrappingProxyParser(proxyBlock,s)}
-method rule(proxyBlock : Block) wrap(s : String)  {ProxyParser(proxyBlock,s)}
+method rule(proxyBlock : Block)  {proxyParser(proxyBlock)}
+//method rule(proxyBlock : Block) wrap(s : String)  {wrappingProxyParser(proxyBlock,s)}
+method rule(proxyBlock : Block) wrap(s : String)  {proxyParser(proxyBlock,s)}
 
-def end = AtEndParser
-method not(p : Parser)  {NotParser(p)}
-method both(p : Parser, q : Parser)  {BothParser(p,q)}
-method empty  {SuccessParser} 
-method guard(p : Parser, b : Block)  {GuardParser(p, b)} 
-method tag(s : String) {TagParser(s)}
-method phrase(s : String, p : Parser) { PhraseParser(s, p) }
-method indentAssert(i : Number) {IndentationAssertionParser(i) }
+def end = atEndParser
+method not(p : Parser)  {notParser(p)}
+method both(p : Parser, q : Parser)  {bothParser(p,q)}
+method empty  {successParser} 
+method guard(p : Parser, b : Block)  {guardParser(p, b)} 
+method tag(s : String) {tagParser(s)}
+method phrase(s : String, p : Parser) { phraseParser(s, p) }
+method indentAssert(i : Number) {indentationAssertionParser(i) }
 
-method lineBreak(direction) {LineBreakParser(direction)}
+method lineBreak(direction) {lineBreakParser(direction)}
 
 method parse (s : String) with (p : Parser)  {
  p.parse(stringInputStream(s,1)).succeeded
@@ -688,24 +696,24 @@ currentIndentation := 0
 
 
     
-def hello = (TokenParser("Hello"))
-def dsp   = DigitStringParser
-def ini   = SequentialParser(
-                GraceIdentifierParser,
-                SequentialParser(
-                        WhiteSpaceParser,
-                        GraceIdentifierParser))
-def ini2  = (GraceIdentifierParser) ~ 
-                        (WhiteSpaceParser) ~
-                                                GraceIdentifierParser
-def alt   = AlternativeParser(hello,dsp)
+def hello = (tokenParser("Hello"))
+def dsp   = digitStringParser
+def ini   = sequentialParser(
+                graceIdentifierParser,
+                sequentialParser(
+                        whiteSpaceParser,
+                        graceIdentifierParser))
+def ini2  = (graceIdentifierParser) ~ 
+                        (whiteSpaceParser) ~
+                                                graceIdentifierParser
+def alt   = alternativeParser(hello,dsp)
 def alt2  = hello | dsp
-def rpx   = RepetitionParser(TokenParser("x"))
-def rpx2  = rep(TokenParser("x"))
-def rpx1  = rep1(TokenParser("x"))
-def rs    = repsep(TokenParser("x"),TokenParser("c"))
-def r1s   = rep1sep(TokenParser("x"),TokenParser("c"))
-def rd    = repdel(TokenParser("x"),TokenParser("c"))
+def rpx   = repetitionParser(tokenParser("x"))
+def rpx2  = rep(tokenParser("x"))
+def rpx1  = rep1(tokenParser("x"))
+def rs    = repsep(tokenParser("x"),tokenParser("c"))
+def r1s   = rep1sep(tokenParser("x"),tokenParser("c"))
+def rd    = repdel(tokenParser("x"),tokenParser("c"))
 //////////////////////////////////////////////////
 // test!
 
@@ -715,21 +723,21 @@ test {strm.take(5)}
 test {strm.rest(6).take(5)} 
     expecting "World" 
     comment "strm.rest(6).take(5)"
-test {TokenParser("Hello").parse(strm).succeeded}
+test {tokenParser("Hello").parse(strm).succeeded}
     expecting(true)
-    comment "TokenParser(\"Hello\")"
-test {TokenParser("Hellx").parse(strm).succeeded}
+    comment "tokenParser(\"Hello\")"
+test {tokenParser("Hellx").parse(strm).succeeded}
     expecting(false)
-    comment "TokenParser(\"Hellx\")"
-test {WhiteSpaceParser.parse(strm).succeeded}
+    comment "tokenParser(\"Hellx\")"
+test {whiteSpaceParser.parse(strm).succeeded}
     expecting(false)
-    comment "WhiteSpaceParser"
-test {WhiteSpaceParser.parse(strm2).succeeded}
+    comment "whiteSpaceParser"
+test {whiteSpaceParser.parse(strm2).succeeded}
     expecting(true)
-    comment "WhiteSpaceParser"
-test {WhiteSpaceParser.parse(strm2).next.position}
+    comment "whiteSpaceParser"
+test {whiteSpaceParser.parse(strm2).next.position}
     expecting(4)
-    comment "WhiteSpaceParser - eating 4"
+    comment "whiteSpaceParser - eating 4"
 test {isletter "A"} expecting (true) comment "isletter A"
 test {isletter "F"} expecting (true) comment "isletter F"
 test {isletter "Z"} expecting (true) comment "isletter Z"
@@ -750,90 +758,90 @@ test {isdigit "$"} expecting (false) comment "isdigit $"
 test {isdigit "0"} expecting (true) comment "isdigit 0"
 test {isdigit "1"} expecting (true) comment "isdigit 1"
 test {isdigit "9"} expecting (true) comment "isdigit 9"
-test {WhiteSpaceParser.parse(strm2).next.position}
+test {whiteSpaceParser.parse(strm2).next.position}
     expecting(4)
-    comment "WhiteSpaceParser - eating 4"
-test {GraceIdentifierParser.parse(strmus).next.position}
+    comment "whiteSpaceParser - eating 4"
+test {graceIdentifierParser.parse(strmus).next.position}
     expecting(2)
-    comment "GraceIdentifierParser  us - eating 2"
-test {GraceIdentifierParser.parse(strmus).succeeded}
+    comment "graceIdentifierParser  us - eating 2"
+test {graceIdentifierParser.parse(strmus).succeeded}
     expecting(true)
-    comment "GraceIdentifierParser us OK"
-test {GraceIdentifierParser.parse(strmus).result}
+    comment "graceIdentifierParser us OK"
+test {graceIdentifierParser.parse(strmus).result}
     expecting("_")
-    comment "GraceIdentifierParser. us _"
-test {GraceIdentifierParser.parse(strmab).next.position}
+    comment "graceIdentifierParser. us _"
+test {graceIdentifierParser.parse(strmab).next.position}
     expecting(12)
-    comment "GraceIdentifierParser ab12 "
-test {GraceIdentifierParser.parse(strmab).succeeded}
+    comment "graceIdentifierParser ab12 "
+test {graceIdentifierParser.parse(strmab).succeeded}
     expecting(true)
-    comment "GraceIdentifierParser ab OK"
-test {GraceIdentifierParser.parse(strmab).result}
+    comment "graceIdentifierParser ab OK"
+test {graceIdentifierParser.parse(strmab).result}
     expecting("abc4de'a123")
-    comment "GraceIdentifierParser.ab - eating 2"
-test {GraceIdentifierParser.parse(strmas).next.position}
+    comment "graceIdentifierParser.ab - eating 2"
+test {graceIdentifierParser.parse(strmas).next.position}
     expecting(2)
-    comment "GraceIdentifierParser as pos"
-test {GraceIdentifierParser.parse(strmas).succeeded}
+    comment "graceIdentifierParser as pos"
+test {graceIdentifierParser.parse(strmas).succeeded}
     expecting(true)
-    comment "GraceIdentifierParser as"
-test {GraceIdentifierParser.parse(strmas).result}
+    comment "graceIdentifierParser as"
+test {graceIdentifierParser.parse(strmas).result}
     expecting("a")
-    comment "GraceIdentifierParser as OK"
-test {GraceIdentifierParser.parse(strmnn).succeeded}
+    comment "graceIdentifierParser as OK"
+test {graceIdentifierParser.parse(strmnn).succeeded}
     expecting(false)
-    comment "GraceIdentifierParser nn - eating 1"
-test {DigitStringParser.parse(strmnn).next.position}
+    comment "graceIdentifierParser nn - eating 1"
+test {digitStringParser.parse(strmnn).next.position}
     expecting(5)
-    comment "DigitStringParser as pos"
-test {DigitStringParser.parse(strmnn).succeeded}
+    comment "digitStringParser as pos"
+test {digitStringParser.parse(strmnn).succeeded}
     expecting(true)
-    comment "DigitStringParser as"
-test {DigitStringParser.parse(strmnn).result}
+    comment "digitStringParser as"
+test {digitStringParser.parse(strmnn).result}
     expecting("1234")
-    comment "DigitStringParser as OK"
-test {DigitStringParser.parse(strmnx).next.position}
+    comment "digitStringParser as OK"
+test {digitStringParser.parse(strmnx).next.position}
     expecting(5)
-    comment "DigitStringParser as pos"
-test {DigitStringParser.parse(strmnx).succeeded}
+    comment "digitStringParser as pos"
+test {digitStringParser.parse(strmnx).succeeded}
     expecting(true)
-    comment "DigitStringParser as"
-test {DigitStringParser.parse(strmnx).result}
+    comment "digitStringParser as"
+test {digitStringParser.parse(strmnx).result}
     expecting("1234")
-    comment "DigitStringParser as OK"
-test {SequentialParser(ws,hello).parse(strm2).succeeded}
+    comment "digitStringParser as OK"
+test {sequentialParser(ws,hello).parse(strm2).succeeded}
     expecting(true)
-    comment "SequentialParser strm2 OK"    
-test {SequentialParser(ws,hello).parse(strm).succeeded}
+    comment "sequentialParser strm2 OK"    
+test {sequentialParser(ws,hello).parse(strm).succeeded}
     expecting(false)
-    comment "SequentialParser strm OK"    
-test {SequentialParser(ws,hello).parse(strmab).succeeded}
+    comment "sequentialParser strm OK"    
+test {sequentialParser(ws,hello).parse(strmab).succeeded}
     expecting(false)
-    comment "SequentialParser strm3 OK"    
+    comment "sequentialParser strm3 OK"    
 test {ini.parse(strmas).succeeded}
     expecting(true)
-    comment "SequentialParser ini OK"    
+    comment "sequentialParser ini OK"    
 test {ini.parse(strmas).result}
     expecting("a bcb")
-    comment "SequentialParser a bcb OK"    
-test {SequentialParser(ws,hello).parse(strm2).succeeded}
+    comment "sequentialParser a bcb OK"    
+test {sequentialParser(ws,hello).parse(strm2).succeeded}
     expecting(true)
-    comment "SequentialParser strm2 OK"    
+    comment "sequentialParser strm2 OK"    
 test {(ws ~ hello).parse(strm2).succeeded}
     expecting(true)
-    comment "SequentialParser strm2 OK"    
+    comment "sequentialParser strm2 OK"    
 test {ini2.parse(strmas).succeeded}
     expecting(true)
-    comment "SequentialParser ini2 OK"    
+    comment "sequentialParser ini2 OK"    
 test {ini2.parse(strmas).result}
     expecting("a bcb")
-    comment "SequentialParser a bcb2 OK"    
+    comment "sequentialParser a bcb2 OK"    
 test {opt(hello).parse(strm).succeeded}
     expecting(true)
-    comment "OptionalParser opt(hello) OK"    
+    comment "optionalParser opt(hello) OK"    
 test {opt(hello).parse(strmab).succeeded}
     expecting(true)
-    comment "OptionalParser opt(hello) abOK"    
+    comment "optionalParser opt(hello) abOK"    
 test {alt.parse(strm).succeeded}
     expecting(true)
     comment "alt Hello OK"    
@@ -876,15 +884,15 @@ test {rpx1.parse(strmxx).result}
 test {rpx1.parse(strmxx).next.atEnd}
     expecting(true)
     comment "rpx1 atEnd OK"    
-test {DropParser(hello).parse(strm).succeeded}
+test {dropParser(hello).parse(strm).succeeded}
     expecting(true)
-    comment "DropParser(\"Hello\")"
-test {DropParser(hello).parse(strm).result}
+    comment "dropParser(\"Hello\")"
+test {dropParser(hello).parse(strm).result}
     expecting("")
-    comment "DropParser(\"Hello\") result"
-test {DropParser(TokenParser("Hellx")).parse(strm).succeeded}
+    comment "dropParser(\"Hello\") result"
+test {dropParser(tokenParser("Hellx")).parse(strm).succeeded}
     expecting(false)
-    comment "DropParser(TokenParser(\"Hellx\"))"
+    comment "dropParser(tokenParser(\"Hellx\"))"
 test {drop(hello).parse(strm).result}
     expecting("")
     comment "drop(hello) result"
@@ -960,22 +968,22 @@ test {rs.parse(strmcx).succeeded}
 test {rs.parse(strmcx).next.position}
      expecting(4)
      comment "rs cx p   "
-test {rule {TokenParser("Hello")}.parse(strm).succeeded}
+test {rule {tokenParser("Hello")}.parse(strm).succeeded}
     expecting(true)
-    comment "rule TokenParser(\"Hello\")"
-test {rule {TokenParser("Hellx")}.parse(strm).succeeded}
+    comment "rule tokenParser(\"Hello\")"
+test {rule {tokenParser("Hellx")}.parse(strm).succeeded}
     expecting(false)
-    comment "rule TokenParser(\"Hellx\")"
-test {AtEndParser.parse(rpx1.parse(strmxx).next).succeeded}
+    comment "rule tokenParser(\"Hellx\")"
+test {atEndParser.parse(rpx1.parse(strmxx).next).succeeded}
     expecting(true)
     comment "atEnd OK"    
-test {AtEndParser.parse(strmxx).succeeded}
+test {atEndParser.parse(strmxx).succeeded}
     expecting(false)
     comment "not atEnd OK"    
-test {CharacterSetParser("Helo Wrd").parse(strm).succeeded}
+test {characterSetParser("Helo Wrd").parse(strm).succeeded}
     expecting(true)
     comment "CSP OK"    
-test {rep(CharacterSetParser("Helo Wrd")).parse(strm).next.position}
+test {rep(characterSetParser("Helo Wrd")).parse(strm).next.position}
     expecting(12)
     comment "CSP next OK"    
 test (not(hello)) on "Hello" wrongly "not(hello)"
@@ -1143,7 +1151,7 @@ def selector = rule {
                         (lBrack ~ rep1sep(expression,comma) ~ rBrack)  
                     }
 
-def operatorChar = CharacterSetParser("!?@#$%^&|~=+-*/><:.") // had to be moved up
+def operatorChar = characterSetParser("!?@#$%^&|~=+-*/><:.") // had to be moved up
 
 //special symbol for operators: cannot be followed by another operatorChar
 method opsymbol(s : String) {trim(token(s) ~ not(operatorChar))}
@@ -1194,7 +1202,7 @@ def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space}
 def blockLiteral = rule { lBrace ~ opt( (matchBinding | blockFormals) ~ arrow) 
                                  ~ innerCodeSequence ~ rBrace }
 def selfLiteral = symbol "self" 
-def numberLiteral = trim(DigitStringParser)
+def numberLiteral = trim(digitStringParser)
 def objectLiteral = rule { objectId ~ lBrace ~ inheritsClause ~ codeSequence ~ rBrace }
 
 //these are *not* in the spec - EELCO 
@@ -1202,7 +1210,7 @@ def tupleLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
 
 def typeLiteral = rule { typeId ~ opt(ws) ~ nakedTypeLiteral }
 
-//kernanX
+//kernan
 def nakedTypeLiteral = rule { lBrace ~ opt(ws) ~ repdel(methodHeader ~ methodReturnType, (semicolon | whereClause)) ~ opt(ws) ~ rBrace }
 
 // terminals
@@ -1228,15 +1236,15 @@ def lGeneric = token "<"
 def rGeneric = token ">"
 
 def comma = rule { symbol(",") }
-def escapeChar = CharacterSetParser("\\\"'\{\}bnrtlfe ")
+def escapeChar = characterSetParser("\\\"'\{\}bnrtlfe ")
 
 def azChars = "abcdefghijklmnopqrstuvwxyz"
 def AZChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 def otherChars = "1234567890~!@#$%^&*()_-+=[]|\\:;<,>.?/"
 
-def anyChar = CharacterSetParser(azChars ++ AZChars ++ otherChars)
+def anyChar = characterSetParser(azChars ++ AZChars ++ otherChars)
 
-def identifierString = (GraceIdentifierParser ~ drop(opt(ws)))
+def identifierString = (graceIdentifierParser ~ drop(opt(ws)))
 
 // def identifier = rule { bothAll(trim(identifierString),not(reservedIdentifier))  }   
                            // bothAll ensures parses take the same length
@@ -1529,10 +1537,10 @@ testProgramOn " return (subParser.parse(in))" wrongly "008x10"
 testProgramOn " return (subParser.parse(in) .resultUnlessFailed)" wrongly "008x11"
 testProgramOn "return (subParser.parse(in) .resultUnlessFailed)" correctly "008x12"
 testProgramOn "(subParser.parse(in) .resultUnlessFailed)" correctly "008x13"
-testProgramOn " \{f ->  return ParseSuccess(in, \"\")\}" wrongly "008x14"
-testProgramOn " \{ return ParseSuccess(in, \"\")\}" wrongly "008x15"
-testProgramOn " return (subParser.parse(in) .resultUnlessFailed \{f ->  return ParseSuccess(in, \"\")\})" wrongly "008x16"
-testProgramOn "return (subParser.parse(in) .resultUnlessFailed \{f ->  return ParseSuccess(in, \"\")\})" correctly "008x17"
+testProgramOn " \{f ->  return parseSuccess(in, \"\")\}" wrongly "008x14"
+testProgramOn " \{ return parseSuccess(in, \"\")\}" wrongly "008x15"
+testProgramOn " return (subParser.parse(in) .resultUnlessFailed \{f ->  return parseSuccess(in, \"\")\})" wrongly "008x16"
+testProgramOn "return (subParser.parse(in) .resultUnlessFailed \{f ->  return parseSuccess(in, \"\")\})" correctly "008x17"
 
 testProgramOn "a" correctly "007x"
 testProgramOn "a b" wrongly "007x"
