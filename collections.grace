@@ -769,7 +769,7 @@ class list<T> {
             method removeAll(vs: Iterable<T>) ifAbsent(action:Block0<Done>)  {
                 for (vs) do { each ->
                     def ix = indexOf(each) ifAbsent { 0 }
-                    if (ix ≠ 0) then {
+                    if (ix != 0) then {
                         removeAt(ix)
                     } else {
                         action.apply

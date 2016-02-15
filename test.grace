@@ -17,7 +17,8 @@ method suite (name) do (tests) {
 
 method test (name) do (body) {
     print "    {name}"
-    body.apply
+    try {body.apply} 
+      catch { e -> print "THREW {e}" }
 }
 
 
