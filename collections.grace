@@ -1,17 +1,24 @@
-import "platform/memory" as mem
+import "platform/memory" as mxm
+def mem = mxm //KERNAN
 
-def ProgrammingError = Exception.refine "ProgrammingError"
+def ProgrammingError is public  = Exception.refine "ProgrammingError"
 
-def BoundsError = ProgrammingError.refine "BoundsError"
-def IteratorExhausted = ProgrammingError.refine "IteratorExhausted"
-def SubobjectResponsibility = ProgrammingError.refine "SubobjectResponsibility"
-def NoSuchObject = ProgrammingError.refine "NoSuchObject"
-def RequestError = ProgrammingError.refine "RequestError"
-def ConcurrentModification = ProgrammingError.refine "ConcurrentModification"
-def SizeUnknown = Exception.refine "SizeUnknown"
+def BoundsError is public  = ProgrammingError.refine "BoundsError"
+def IteratorExhausted is public = ProgrammingError.refine "IteratorExhausted"
+def SubobjectResponsibility is public = ProgrammingError.refine "SubobjectResponsibility"
+def NoSuchObject is public = ProgrammingError.refine "NoSuchObject"
+def RequestError is public = ProgrammingError.refine "RequestError"
+def ConcurrentModification is public = ProgrammingError.refine "ConcurrentModification"
+def SizeUnknown is public = Exception.refine "SizeUnknown"
 
-//kjx hack for Kernan
-//def SizeUnknown = Exception
+//kjx hacks for Kernan
+method sizeOfVariadicList( l ) { 
+  var s := 0
+  for (l) do { _ -> s := s + 1 } 
+  return s
+}
+
+
 
 method abstract {
     // repeated in StandardPrelude
@@ -30,7 +37,9 @@ type Block2<S,T,R> = type {
     apply(a:S, b:T) -> R
 }
 
-type SelfType = Unknown     // becuase it's not yet in the language
+type Self = Unknown     // becuase it's not yet in the language
+type Object = type { }  //KERNAN
+
 
 type Iterable<T> = Object & type {
     iterator -> Iterator<T>
@@ -54,8 +63,8 @@ type Iterable<T> = Object & type {
 }
 
 type Expandable<T> = Iterable<T> & type {
-    add(*x: T) -> SelfType
-    addAll(xs: Iterable<T>) -> SelfType
+    add(*x: T) -> Self
+    addAll(xs: Iterable<T>) -> Self
 }
 
 type Collection<T> = Iterable<T> & type {
@@ -70,8 +79,8 @@ type Enumerable<T> = Collection<T> & type {
     keysAndValuesDo(action:Block2<Number,T,Object>) -> Done
     onto(resultFactory:EmptyCollectionFactory<T>) -> Collection<T>
     into(existing: Expandable<Unknown>) -> Collection<Unknown>
-    sortedBy(comparison:Block2<T,T,Number>) -> SelfType
-    sorted -> SelfType
+    sortedBy(comparison:Block2<T,T,Number>) -> Self
+    sorted -> Self
 }
 
 type Sequence<T> = Enumerable<T> & type {
@@ -98,7 +107,7 @@ type List<T> = Sequence<T> & type {
     addAllFirst(xs: Iterable<T>) -> List<T>
     addLast(*x: T) -> List<T>    // same as add
     at(ix:Number) put(v:T) -> List<T>
-    []:= (ix:Number, v:T) -> Done
+    //[]:= (ix:Number, v:T) -> Done  // KERNAN
     removeFirst -> T
     removeAt(n: Number) -> T
     removeLast -> T
@@ -118,8 +127,8 @@ type List<T> = Sequence<T> & type {
 
 type Set<T> = Collection<T> & type {
     size -> Number
-    add(*elements:T) -> SelfType
-    addAll(elements: Iterable<T>) -> SelfType
+    add(*elements:T) -> Self
+    addAll(elements: Iterable<T>) -> Self
     remove(*elements: T) -> Set<T>
     remove(*elements: T) ifAbsent(block: Block0<Done>) -> Set<T>
     includes(booleanBlock: Block1<T,Boolean>) -> Boolean
@@ -142,7 +151,7 @@ type Dictionary<K,T> = Collection<T> & type {
     contains(elem:T) -> Boolean
     at(key:K)ifAbsent(action:Block0<Unknown>) -> Unknown
     at(key:K)put(value:T) -> Dictionary<K,T>
-    []:= (k:K, v:T) -> Done
+    // []:= (k:K, v:T) -> Done // KERNAN
     at(k:K) -> T
     [ k:K ] -> T //kernan
     removeAllKeys(keys: Iterable<K>) -> Dictionary<K,T>
@@ -250,15 +259,17 @@ class iteratorConcat<T>(left:Iterator<T>, right:Iterator<T>) {
 }
 class lazyConcatenation<T>(left, right) -> Enumerable<T>{
     inherits enumerableTrait<T>
+       alias superAsString = asString
     method iterator {
         iteratorConcat(left.iterator, right.iterator)
     }
     method asDebugString { "lazy concatenation of {left} and {right}" }
-    method asString { super.asString }
+    method asString { superAsString }
     method size { left.size + right.size }  // may raise SizeUnknown
 }
 
-class collectionTrait<T> {
+trait collectionTrait<T> {
+    method !=(other) { ! (self == other) }  //KERNAN
     method do { abstract }
     method iterator { abstract }
     method isEmpty {
@@ -317,8 +328,8 @@ class collectionTrait<T> {
     }
 }
 
-class enumerableTrait<T> {
-    inherits collectionTrait<T>
+trait enumerableTrait<T> {
+    uses collectionTrait<T>
     method iterator { abstract }
     method size {
         // override if size is known
@@ -385,8 +396,8 @@ class enumerableTrait<T> {
     }
 }
 
-class indexableTrait<T> {
-    inherits collectionTrait<T>
+trait indexableTrait<T> {
+    uses collectionTrait<T>
     method at { abstract }
     method size { abstract }
     method isEmpty { size == 0 }
@@ -485,9 +496,9 @@ class sequence<T> {
         for (a) do { arg ->
             try {
                 forecastSize := forecastSize + arg.size
-            } catch { _:SizeUnknown ->
-                forecastSize := forecastSize + 8
-                sizeUncertain := true
+            } catch { _ -> 
+                             forecastSize := forecastSize + 8 //KERNAN
+                             sizeUncertain := true //KERNAN
             }
         }
         var inner := mem.allocate(forecastSize)
@@ -525,7 +536,7 @@ class sequence<T> {
 
         object {
             inherits indexableTrait
-            def size is public = sz
+            method size {sz} //KERNAN BUG
             def inner = pArray
 
             method boundsCheck(n) is confidential {
@@ -641,13 +652,15 @@ class list<T> {
         object {
             // the new list object without native code
             inherits indexableTrait<T>
-
+            method size { sz } 
+            method size:=(x) { sz := x }
+            var sz is readable := 0 //KERNAN moved up from below
             var mods is readable := 0
             var initialSize
-            try { initialSize := a.size * 2 + 1 }
+            try { initialSize := sizeOfVariadicList(a) * 2 + 1 }
                 catch { _ex:SizeUnknown -> initialSize := 9 }
             var inner := mem.allocate(initialSize)
-            var size is readable := 0
+
             for (a) do {x->
                 inner.at(size)put(x)
                 size := size + 1
@@ -675,7 +688,7 @@ class list<T> {
                 }
                 self
             }
-            method []:=(n,x) {
+            method [n] := (x) {
                 mods := mods + 1
                 if (n == (size + 1)) then {
                     addLast(x)
@@ -690,8 +703,8 @@ class list<T> {
             }
             method addAll(l) {
                 mods := mods + 1
-                if ((size + l.size) > inner.size) then {
-                    expandTo(max(size + l.size, size * 2))
+                if ((size + sizeOfVariadicList(l)) > inner.size) then {
+                    expandTo(max(size + sizeOfVariadicList(l), size * 2))
                 }
                 for (l) do {each ->
                     inner.at(size)put(each)
@@ -843,7 +856,8 @@ class list<T> {
             }
             method sortBy(sortBlock:Block2) {
                 mods := mods + 1
-                inner.sortInitial(size) by(sortBlock)
+                // inner.sortInitial(size) by(sortBlock) //KERNNA: WTF???
+                
                 self
             }
             method sort {
@@ -875,7 +889,7 @@ class set<T> {
             inherits collectionTrait
             var mods is readable := 0
             var initialSize
-            try { initialSize := max(a.size * 3 + 1, 8) }
+            try { initialSize := max(sizeOfVariadicList(a) * 3 + 1, 8) }
                 catch { _:SizeUnknown -> initialSize := 8 }
             var inner := mem.allocate(initialSize)
             def unused = object {
@@ -886,7 +900,9 @@ class set<T> {
                 var removed := true
                 method asString { "removed" }
             }
-            var size is readable := 0
+            method size {sz} //KERNAN BUG
+            method size:=(x) { sz := x } //KERNSAN BUG
+            var sz := 0
             for (0 .. (initialSize - 1)) do {i->
                 inner.at(i)put(unused)
             }
@@ -1131,13 +1147,13 @@ type Binding<K,T> = {
     key -> K
     value -> T
     hash -> Number
-    == -> Boolean
+    == (x) -> Boolean
 }
 
 class key(k)value(v) {
     method key {k}
     method value {v}
-    method asString { "{k}::{v}" }
+    method asString { "{k} :: {v}" }
     method hashcode { (k.hashcode * 1021) + v.hashcode }
     method hash { (k.hash * 1021) + v.hash }
     method == (other) {
@@ -1185,7 +1201,7 @@ class dictionary<K,T> {
                 if ((size * 2) > inner.size) then { expand }
                 self    // for chaining
             }
-            method []:=(k, v) {
+            method [k] := (v) {
                 at(k)put(v)
                 done
             }
@@ -1487,7 +1503,7 @@ class range {
                 case {_:Number -> }
                 case {_ -> RequestError.raise ( "lower bound {lower}" ++ 
                              " in range.from({lower})to({upper}) is not an integer") }
-            def start = lower.truncated
+            def start = lower.integral //KERNAN was integral
             if (start != lower) then {
                 RequestError.raise ("lower bound {lower}" ++
                    " in range.from({lower})to({upper}) is not an integer") }
@@ -1496,13 +1512,13 @@ class range {
                 case {_:Number -> }
                 case {_ -> RequestError.raise ("upper bound {upper}" ++
                              " in range.from({lower})to({upper}) is not an integer") }
-            def stop = upper.truncated
+            def stop = upper.integral
             if (stop != upper) then {
                 RequestError.raise ("upper bound {upper}" ++
                     " in range.from()to() is not an integer")
             }
-
-            def size is public =
+            method size {sz} //KERNAN BUG
+            def sz is public =
                 if ((upper - lower + 1) < 0) then { 0 } else {upper - lower + 1}
 
             def hash is public = { ((start.hash * 1021) + stop.hash) * 3 }
@@ -1518,7 +1534,7 @@ class range {
                         val := val + 1
                         return (val - 1)
                     }
-                    method asString { "{super.asString} from {upper} to {lower}" }
+                    method asString { "KJX+HAS+NO+IDEA+superAsString from {upper} to {lower}" }
                 }
             }
             method at(ix:Number) {
@@ -1532,7 +1548,7 @@ class range {
             }
             method contains(elem) -> Boolean {
                 try {
-                    def intElem = elem.truncated
+                    def intElem = elem.integral
                     if (intElem != elem) then {return false}
                     if (intElem < start) then {return false}
                     if (intElem > stop) then {return false}
@@ -1594,7 +1610,7 @@ class range {
                 case {_:Number -> }
                 case {_ -> RequestError.raise ("upper bound {upper}" ++
                                " in range.from({upper})downTo({lower}) is not an integer") }
-            def start = upper.truncated
+            def start = upper.integral
             if (start != upper) then {
                 RequestError.raise ("upper bound {upper}" ++
                     " in range.from({upper})downTo({lower}) is not an integer")
@@ -1603,12 +1619,13 @@ class range {
                 case {_:Number -> }
                 case {_ -> RequestError.raise ("lower bound {lower}" ++
                                " in range.from({upper})downTo({lower}) is not an integer") }
-            def stop = lower.truncated
+            def stop = lower.integral
             if (stop != lower) then {
                 RequestError.raise ("lower bound {lower}" ++
                     " in range.from({upper})downTo({lower}) is not an integer")
             }
-            def size is public =
+            method size {sz} //KERNAN BUG
+            def sz is public =
                 if ((upper - lower + 1) < 0) then { 0 } else {upper - lower + 1}
             method iterator {
                 object {
@@ -1633,7 +1650,7 @@ class range {
             }
             method contains(elem) -> Boolean {
                 try {
-                    def intElem = elem.truncated
+                    def intElem = elem.integral
                     if (intElem != elem) then {return false}
                     if (intElem > start) then {return false}
                     if (intElem < stop) then {return false}
