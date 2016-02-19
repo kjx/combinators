@@ -1,14 +1,34 @@
-//test.grace dialect by Andrew Black and James Noble
+//test.grace dialect by Andrew Black, destroyed by James Noble
 //based on minitest and gUnit by Andrew Black 
 
-//KERNANisms
+//KERNAN begin
+method valof (block) { block.apply }
 
-method begin(block) { block.apply }
-
-def myDone = begin { var x
+def myDone = valof { var x
                      x := 0 } // to get a done 
 
 method done {myDone} 
+
+class singleton(printString) {
+        method match(other) {
+            if (self == other) then {
+                _SuccessfulMatch.new(other, [])
+            } else {
+                _FailedMatch.new(other)
+            }
+        }
+        method asString { printString }
+}
+//KERNAN end
+
+def nullSuite = singleton "nullSuite"
+def nullBlock = singleton "nullBlock"
+
+var currentTestSuiteForDialect := nullSuite
+var currentSetupBlockForTesting := nullBlock
+var currentTestBlockForTesting := 0  
+var currentTestInThisEvaluation := 0 
+
 
 method suite (name) do (tests) { 
     print "suite: {name}" 
@@ -81,9 +101,7 @@ method assert(block0) shouldRaise (desiredException) {
     method assert(value) hasType (Desired) {
         match (value)
             case { _:Desired -> countOneAssertion }
-            case { _ -> 
-                def m = methodsIn(Desired) missingFrom (value)
-                failBecause "{value} does not have type {Desired}; it's missing methods {m}." }
+            case { _ ->  failBecause "{value} does not have type {Desired}" }
 }
 method assertType(T:Type) describes (value) {
         def missingFromT = protocolOf(value) notCoveredBy(T)
@@ -125,4 +143,7 @@ method deny(value) hasType (Undesired:Type) {
                 countOneAssertion 
             }
 }
+
+
+
 

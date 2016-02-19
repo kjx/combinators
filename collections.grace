@@ -1,5 +1,4 @@
-import "platform/memory" as mxm
-def mem = mxm //KERNAN
+import "platform/memory" as mem
 
 def ProgrammingError is public  = Exception.refine "ProgrammingError"
 
@@ -18,6 +17,10 @@ method sizeOfVariadicList( l ) {
   return s
 }
 
+trait equalityTrait {
+  method ==(other) { abstract }
+  method !=(other) { ! (self == other) }  //KERNAN
+}
 
 
 method abstract {
@@ -269,7 +272,7 @@ class lazyConcatenation<T>(left, right) -> Enumerable<T>{
 }
 
 trait collectionTrait<T> {
-    method !=(other) { ! (self == other) }  //KERNAN
+    uses equalityTrait
     method do { abstract }
     method iterator { abstract }
     method isEmpty {
@@ -536,7 +539,7 @@ class sequence<T> {
 
         object {
             inherits indexableTrait
-            method size {sz} //KERNAN BUG
+            def size is public = sz
             def inner = pArray
 
             method boundsCheck(n) is confidential {
@@ -652,9 +655,7 @@ class list<T> {
         object {
             // the new list object without native code
             inherits indexableTrait<T>
-            method size { sz } 
-            method size:=(x) { sz := x }
-            var sz is readable := 0 //KERNAN moved up from below
+            var size is readable := 0 //KERNAN moved up from below
             var mods is readable := 0
             var initialSize
             try { initialSize := sizeOfVariadicList(a) * 2 + 1 }
@@ -728,7 +729,7 @@ class list<T> {
             }
             method addAllFirst(l) {
                 mods := mods + 1
-                def increase = l.size
+                def increase = sizeOfVariadicList(l)
                 if ((size + increase) > inner.size) then {
                     expandTo(max(size + increase, size * 2))
                 }
@@ -900,9 +901,7 @@ class set<T> {
                 var removed := true
                 method asString { "removed" }
             }
-            method size {sz} //KERNAN BUG
-            method size:=(x) { sz := x } //KERNSAN BUG
-            var sz := 0
+            var size is readable := 0
             for (0 .. (initialSize - 1)) do {i->
                 inner.at(i)put(unused)
             }
@@ -1151,6 +1150,7 @@ type Binding<K,T> = {
 }
 
 class key(k)value(v) {
+    uses equalityTrait
     method key {k}
     method value {v}
     method asString { "{k} :: {v}" }
@@ -1517,8 +1517,7 @@ class range {
                 RequestError.raise ("upper bound {upper}" ++
                     " in range.from()to() is not an integer")
             }
-            method size {sz} //KERNAN BUG
-            def sz is public =
+            def size is public =
                 if ((upper - lower + 1) < 0) then { 0 } else {upper - lower + 1}
 
             def hash is public = { ((start.hash * 1021) + stop.hash) * 3 }
@@ -1624,8 +1623,7 @@ class range {
                 RequestError.raise ("lower bound {lower}" ++
                     " in range.from({upper})downTo({lower}) is not an integer")
             }
-            method size {sz} //KERNAN BUG
-            def sz is public =
+            def size is public =
                 if ((upper - lower + 1) < 0) then { 0 } else {upper - lower + 1}
             method iterator {
                 object {
