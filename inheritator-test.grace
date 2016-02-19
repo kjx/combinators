@@ -2,8 +2,12 @@ dialect "test"
 import "newcol" as nc
 method circumfix[ *x ] { nc.seq(x) }
 import "inheritator" as i 
+method sizeOfVariadicList( l ) { 
+  var s := 0
+  for (l) do { _ -> s := s + 1 } 
+  return s
+}
 
-method dump(s) {}
 
 suite "nc"  do {
   test "output" do {
@@ -160,16 +164,46 @@ suite "object" do {
     assert (x5.structureConflicts) description "x5 structureConficts"
   }
 
-  print ""
-  i.printAll(x1.initialise)
-  print ""
-  i.printAll(x2.initialise)
-  print ""
-  i.printAll(x3.initialise)
-  print ""
-  i.printAll(x4.initialise)
-  print ""
-  i.printAll(x5.initialise)
+ 
+  def c1x1 = i.obj "c1x1" from(c1) excludes ([ "name1" ])
+  def c1x2 = i.obj "c1x2" from(c1) excludes ([ "name2" ])
+  def c1x3 = i.obj "c1x3" from(c1) excludes ([ "name3" ])
+  def c1x4 = i.obj "c1x4" from(c1) excludes ([ "name1", "name3" ])
+
+  def x5x1 = i.obj "x5x1"
+    inherit ([ ]) 
+    use ([ i.obj "x5t12" from(t12) excludes ([ "name1" ]), t113 ])
+    declare ([ ])
+    annot ([ ])
+
+  def x5x2 = i.obj "x5x2"
+    inherit ([ ]) 
+    use ([ t12, i.obj "x5t113" from(t12) excludes ([ "name1" ]) ])
+    declare ([ ])
+    annot ([ ])
+
+  def x5x3 = i.obj "x5x3"
+    inherit ([ i.obj "x5t12a" from(t12) excludes ([ "name1" ]) ]) 
+    use ([ t113 ])
+    declare ([ ])
+    annot ([ ])
+
+  def x5x4 = i.obj "x5x4"
+    inherit ([ i.obj "x5t113a" from(t113) excludes ([ "name1" ]) ]) 
+    use ([ t12 ])
+    declare ([ ])
+    annot ([ ])
+
+  test "exclusions" do {
+    assert(sizeOfVariadicList(c1x1.structure)) shouldBe 1
+    assert(sizeOfVariadicList(c1x2.structure)) shouldBe 2
+    assert(sizeOfVariadicList(c1x3.structure)) shouldBe 1
+    assert(sizeOfVariadicList(c1x4.structure)) shouldBe 0
+    assert (!x5x1.structureConflicts) description "x5x1 structureConficts"
+    assert (!x5x2.structureConflicts) description "x5x2 structureConficts"
+    assert (!x5x3.structureConflicts) description "x5x3 structureConficts"
+    assert (!x5x4.structureConflicts) description "x5x4 structureConficts"
+  }
 
 }
 

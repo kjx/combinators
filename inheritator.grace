@@ -10,7 +10,6 @@ type Dcl = type {
      init
      annotations
      asString     
-     in(_:Obj) do(_: type { apply(_:Obj) -> Done } ) -> Done        
 }
 
 //object / trait, class etc
@@ -19,7 +18,7 @@ type Obj = type {
      initialise -> nc.Sequence<String> 
      annotations -> nc.Sequence<String> 
      name -> String
-     in(_:Obj) do(_: type { apply(_:Obj) -> Done } ) -> Done
+     asString -> String
 }
 
 
@@ -49,7 +48,7 @@ trait annotationsTrait {
 class dcl(name' : String)          //name being defined
         body ( body' : String )    //retro thing for methods
         init ( init' : String )    //init string for defs/vars
-        annot ( annotations' : nc.Seq<String> ) {
+        annot ( annotations' : nc.Seq<String> ) -> Dcl {
 
    uses annotationsTrait
    uses equalityTrait
@@ -153,3 +152,18 @@ class obj(name' : String)
    }
 }
 
+
+class obj (name' : String ) 
+        from(base : Obj)
+        excludes ( excls : nc.Sequence<String> ) -> Obj {
+     inherits obj( name' )
+        inherit ([ ])
+        use ([ ]) 
+        declare ([ ])  
+        annot ([ ]) 
+     method structure -> nc.Sequence<String> {
+        base.structure.filter { each -> ! ( excls.contains(each.name)) }
+     }
+     method initialise -> nc.Sequence<String> {base.initialise}
+     method annotations -> nc.Sequence<String> {base.annotations}
+}

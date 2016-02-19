@@ -336,7 +336,7 @@ trait enumerableTrait<T> {
     method iterator { abstract }
     method size {
         // override if size is known
-        SizeUnknown.raise "size requested on {asDebugString}"
+        SizeUnknown.raise "size requested on {asString}"
     }
     method asDictionary {
         def result = dictionary.empty

@@ -128,7 +128,7 @@ method protocolOf(value) notCoveredBy (Q:Type) -> String is confidential {
         def missing = (vMethods -- qMethods).filter{m -> 
             (! m.endsWith "()object") && (m != "outer")}.asSet
         if (missing.isEmpty.not) then {
-            s := "{Q.asDebugString} is missing "
+            s := "{Q.asString} is missing "
             missing.do { each -> s := s ++ each } 
                 separatedBy { s := s ++ ", " }
         }
