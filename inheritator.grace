@@ -1,9 +1,15 @@
 //inheritator.grace by James Noble
 import "newcol" as nc
 method circumfix[ *x ] { nc.seq(x) }
+method printAll (x) {for (x) do { each -> print(each) }}
 
 //declaration
 type Dcl = type { 
+     name
+     body
+     init
+     annotations
+     asString     
      in(_:Obj) do(_: type { apply(_:Obj) -> Done } ) -> Done        
 }
 
@@ -46,6 +52,7 @@ class dcl(name' : String)          //name being defined
         annot ( annotations' : nc.Seq<String> ) {
 
    uses annotationsTrait
+   uses equalityTrait
    def name is public = name'
    def body is public = body'
    def init is public = init'
@@ -55,14 +62,11 @@ class dcl(name' : String)          //name being defined
    }
    method asString {
       def strs = nc.outputStream
-      strs.add "    "
       strs.add( name ) 
       if (annotations.size > 0) then {
-         strs.add " is"
+         strs.add " is "
          annotations.do { each -> 
-            strs.add " "
-            strs.add(each)
-            if (annotations.size > 1) then {strs.add ","}}}
+            strs.add(each) } separatedBy { strs.add ", " }}
       if ("" != body) then {
          strs.add " \{"
          strs.add(body)
@@ -74,12 +78,17 @@ class dcl(name' : String)          //name being defined
          }
       return strs.asString
    }
+   method ==(other) {//functional
+     match (other)
+       case { od : Dcl -> od.asString == asString } //cheats
+       case { _ -> false }
+   }
+   method <-!-> (other) {
+     match (other)
+       case { od : Dcl -> od.name == name } //cheats
+       case { _ -> Error.raise "<-!-> should only be called on Dcls" }
+   }
 }
-
-print (dcl "name" body "body" init "init" annot ([ "confidential" ]))
-print (dcl "name" body "body" init "" annot ([  ]))
-print (dcl "name" body "" init "init" annot ([  ]))
-print (dcl "name" body "" init "" annot ([ "confidential", "stupid" ]))
 
 //obj is a basic object (aka trait aka class)
 class obj(name' : String)
@@ -90,30 +99,57 @@ class obj(name' : String)
    uses annotationsTrait
    def name is public = name' 
    def annotations is public = annotations' //provide hook for anotationsTrait  
-   method structure  { ([ ]) }
-   method initialise { ([ ]) }   
-   method structureString { nc.outputStream.asString }
-   method initialiseString { nc.outputStream.asString }
+   method structure  { //onceler?
+     def struc = nc.list ([ ])
+     for (supers) do { i -> struc.addAll(i.structure) }
+     for (traits) do { i -> struc.addAll(i.structure) }
+     for (locals) do { i -> struc.add(i) }
+     return struc
+   }
+
+   method structureConflicts {
+     def s = structure
+     for (s) do { a -> 
+       for (s) do { b ->
+          if (a <-!-> b) then {
+             if (a != b) then {return true}}
+     }}
+     false
+   }
+   method initialise { 
+     def initCode = nc.list ([ ])
+     for (supers) do { i -> initCode.addAll(i.initialise) }
+     for (traits) do { i -> initCode.addAll(i.initialise) }
+     initCode.add( "// from {name}" ) 
+     for (locals) do { i -> if ("" != i.init) then {
+                                initCode.add( "init {i.name} as ({i.init})" ) }}
+     return initCode
+   }
+   
    method in(_:Obj) do(_: type { apply(_:Obj) -> Done } ) {
       Execption.raise "unimplemented" 
    }
+
+   method asString {
+      def strs = nc.outputStream
+      strs.add("method {name} returning object ") 
+      if (annotations.size > 0) then {
+         strs.add "is "
+         annotations.do { each -> 
+            strs.add(each) } separatedBy { strs.add ", " }
+         strs.add " "}
+      strs.addln "\{"
+      strs.newlinetab := 2
+      for (supers) do { each ->
+         strs.addln("inherits " ++ each.name)
+      }
+      for (traits) do { each ->
+         strs.addln("uses " ++ each.name)
+      }
+      for (locals) do { each -> strs.addln(each.asString) }
+      strs.newlinetab := 0
+      strs.addln "}"
+      return strs.asString
+   }
 }
-
-
-
-
-
-//method obj "name" 
-//    inherit ( using [ohelper] declare [locals] annotating [annots]. ?
-
-
-
-
-
-
-
-
-
-
-
 

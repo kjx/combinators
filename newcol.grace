@@ -19,13 +19,22 @@ type Set<T> = col.Set<T>
 
 class outputStream { 
   def buffer = list([ ])
-  method add (s : String) {buffer.add(s)}
+  var newlinetab is public := 0 
+  var atNewline := true
+  method add (s : String) {if (atNewline) then {addSpaces(newlinetab)}
+                           atNewline := false
+                           buffer.add(s)}
   method addln (s : String) {add(s)
-                             add("\n")} 
+                             cr}
+  method cr {buffer.add "\n"
+             atNewline := true}                      
+  method addSpaces(n) { 
+         if (n > 0) then {
+             for (1 .. n) do { _ -> buffer.add " "}}} //hate _ -> here
+                             
   method asString {
     var str := ""
     for (buffer) do { each -> str := str ++ each } 
     return str
   }
-  method pp {print(asString)}
 }
