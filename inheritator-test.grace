@@ -194,6 +194,16 @@ suite "object" do {
     declare ([ ])
     annot ([ ])
 
+
+  print(c1x1.initialise)
+  print(c1x2.initialise)
+  print(c1x3.initialise)
+  print(c1x4.initialise)
+  print(x5x1.initialise)
+  print(x5x2.initialise)
+  print(x5x3.initialise)
+  print(x5x4.initialise)
+
   test "exclusions" do {
     assert(sizeOfVariadicList(c1x1.structure)) shouldBe 1
     assert(sizeOfVariadicList(c1x2.structure)) shouldBe 2

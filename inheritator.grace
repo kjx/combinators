@@ -5,17 +5,23 @@ method printAll (x) {for (x) do { each -> print(each) }}
 
 //declaration
 type Dcl = type { 
-     name
-     body
-     init
-     annotations
-     asString     
+     name -> String
+     body -> String
+     init -> String
+     annotations -> nc.Sequence<String>
+     asString -> String
+}
+
+//initialiser
+type Ini = type {
+     body -> String
+     names -> nc.Sequence<String>
 }
 
 //object / trait, class etc
 type Obj = type { 
-     structure -> nc.Sequence<String> 
-     initialise -> nc.Sequence<String> 
+     structure -> nc.Sequence<Dcl> 
+     initialise -> nc.Sequence<Ini> 
      annotations -> nc.Sequence<String> 
      name -> String
      asString -> String
@@ -89,12 +95,32 @@ class dcl(name' : String)          //name being defined
    }
 }
 
+//ini is an initialiser
+class ini(names' : nc.Sequence<String>) code(code' : String) {
+    def names is public = names'
+    def code is public = code'
+    method asString {
+      if (sizeOfVariadicList(names) > 0) 
+           then {"init {names} as ({code})"}
+           else {code}
+    }
+    method excluding(excls : nc.Sequence<String>) {
+      def newnames = names.filter {each -> ! ( excls.contains(each))}
+      def finalnames = (if ((sizeOfVariadicList(names) > 0) &&
+                            (sizeOfVariadicList(newnames) == 0))
+        then { ([ "_"  ]) }
+        else {newnames})
+      ini( finalnames) code(code)
+      }
+}
+
+
 //obj is a basic object (aka trait aka class)
 class obj(name' : String)
-        inherit ( supers : Obj )  //should be zero or one :-)
-        use ( traits : Obj ) 
-        declare ( locals : Obj )  //hmm...
-        annot ( annotations' : nc.Seq<String> ) {
+        inherit ( supers : nc.Sequence<Obj> )  //should be zero or one :-)
+        use ( traits : nc.Sequence<Obj> ) 
+        declare ( locals : nc.Sequence<Dcl> )  //hmm...
+        annot ( annotations' : nc.Sequence<String> ) {
    uses annotationsTrait
    def name is public = name' 
    def annotations is public = annotations' //provide hook for anotationsTrait  
@@ -119,9 +145,9 @@ class obj(name' : String)
      def initCode = nc.list ([ ])
      for (supers) do { i -> initCode.addAll(i.initialise) }
      for (traits) do { i -> initCode.addAll(i.initialise) }
-     initCode.add( "// from {name}" ) 
+     initCode.add( ini ([ ])  code ( "// from {name}" ) )
      for (locals) do { i -> if ("" != i.init) then {
-                                initCode.add( "init {i.name} as ({i.init})" ) }}
+               initCode.add( ini ([ i.name ]) code "as ({i.init})" ) }}
      return initCode
    }
    
@@ -164,6 +190,8 @@ class obj (name' : String )
      method structure -> nc.Sequence<String> {
         base.structure.filter { each -> ! ( excls.contains(each.name)) }
      }
-     method initialise -> nc.Sequence<String> {base.initialise}
+     method initialise -> nc.Sequence<String> {
+        base.initialise.map { each -> each.excluding( excls ) }
+     }
      method annotations -> nc.Sequence<String> {base.annotations}
 }
