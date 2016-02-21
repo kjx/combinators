@@ -194,16 +194,6 @@ suite "object" do {
     declare ([ ])
     annot ([ ])
 
-
-  print(c1x1.initialise)
-  print(c1x2.initialise)
-  print(c1x3.initialise)
-  print(c1x4.initialise)
-  print(x5x1.initialise)
-  print(x5x2.initialise)
-  print(x5x3.initialise)
-  print(x5x4.initialise)
-
   test "exclusions" do {
     assert(sizeOfVariadicList(c1x1.structure)) shouldBe 1
     assert(sizeOfVariadicList(c1x2.structure)) shouldBe 2
@@ -214,16 +204,61 @@ suite "object" do {
     assert (!x5x3.structureConflicts) description "x5x3 structureConficts"
     assert (!x5x4.structureConflicts) description "x5x4 structureConficts"
   }
+  print "Done exclusions"
+
+  def c1a1 = i.obj "c1a1" from(c1) aliases (nc.dict ([ nc.key "name1" value "alias1" ]) )
+  print "c1a1"
+  print (c1a1) 
+
+  print "starting c1a2"
+
+  print ( ([ nc.key "noname" value "alias1" ]) )
+  print (nc.dict ([ nc.key "noname" value "alias1" ]) )
+
+  def c1a2 = i.obj "c1a2" from(c1) aliases (nc.dict ([ nc.key "noname" value "alias1" ]) )
+  print "c1a2"
+  print (c1a2) 
+
+  def c1a3 = i.obj "c1a3" from(c1) aliases (nc.dict ([ nc.key "name1" value "alias1", 
+                          nc.key "name3" value "alias3" ]) )
+  print "c1a3"
+  print (c1a3) 
+
+  def c1a4 = i.obj "c1a4" from(c1) aliases (nc.dict ([ nc.key "name1" value "aliasX", 
+                          nc.key "name3" value "aliasX" ]) )
+  print "c1a4"
+  print (c1a4) 
+
+  print "sippu"
+
+  test "aliases1" do {
+    assert((d1.maybeRename( nc.dict ([ nc.key "a" value "b" ]))).name) shouldBe "name1"
+    assert((d1.maybeRename( nc.dict ([ nc.key "name1" value "b" ]))).name) shouldBe "b"
+    assert((d1.maybeRename( nc.dict ([ nc.key "a" value "b", nc.key "name1" value "b" ]))).name) shouldBe "b"
+  }
+
+  test "aliases2" do {
+    assert(sizeOfVariadicList(c1a1.structure)) shouldBe 3
+    assert(sizeOfVariadicList(c1a2.structure)) shouldBe 2
+    assert(sizeOfVariadicList(c1a3.structure)) shouldBe 4
+    assert(sizeOfVariadicList(c1a4.structure)) shouldBe 4
+  }
+  test "aliases3" do {
+    assert (!c1a1.structureConflicts) description "x5x1 structureConficts"
+    assert (!c1a2.structureConflicts) description "x5x2 structureConficts"
+    assert (!c1a3.structureConflicts) description "x5x3 structureConficts"
+    assert (c1a4.structureConflicts) description "x5x4 structureConficts"
+  }
 
 }
 
 //TODO
-// Tuple like helper
-// From (foo) aliasing [ [ "a", "b" ] ] excluding [ "a", "b", "c" ] 
 //  Returns some thing very like a class/trait/object. 
 // Or is this a method on traits?
 // Or a set of methods? 
 
+//symmetric semantics
+//assymetric semantics
 
 //overriding annotation
 //circular inheritance?

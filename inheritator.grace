@@ -12,16 +12,10 @@ type Dcl = type {
      asString -> String
 }
 
-//initialiser
-type Ini = type {
-     body -> String
-     names -> nc.Sequence<String>
-}
-
 //object / trait, class etc
 type Obj = type { 
      structure -> nc.Sequence<Dcl> 
-     initialise -> nc.Sequence<Ini> 
+     initialise -> nc.Sequence<String> 
      annotations -> nc.Sequence<String> 
      name -> String
      asString -> String
@@ -55,6 +49,11 @@ class dcl(name' : String)          //name being defined
         body ( body' : String )    //retro thing for methods
         init ( init' : String )    //init string for defs/vars
         annot ( annotations' : nc.Seq<String> ) -> Dcl {
+
+   //to make a method - dcl "foo" body "foo-body" init ""
+   //to make a def - dcl "d" body "c-def-d" init "DEF c-def-d = exp"
+   //to make a var - dcl "v" body "c-var-v" init "VAR c-var-v := exp"
+   //and             dcl "v:=" body "c-var-v:=" init ""
 
    uses annotationsTrait
    uses equalityTrait
@@ -93,25 +92,11 @@ class dcl(name' : String)          //name being defined
        case { od : Dcl -> od.name == name } //cheats
        case { _ -> Error.raise "<-!-> should only be called on Dcls" }
    }
-}
-
-//ini is an initialiser
-class ini(names' : nc.Sequence<String>) code(code' : String) {
-    def names is public = names'
-    def code is public = code'
-    method asString {
-      if (sizeOfVariadicList(names) > 0) 
-           then {"init {names} as ({code})"}
-           else {code}
-    }
-    method excluding(excls : nc.Sequence<String>) {
-      def newnames = names.filter {each -> ! ( excls.contains(each))}
-      def finalnames = (if ((sizeOfVariadicList(names) > 0) &&
-                            (sizeOfVariadicList(newnames) == 0))
-        then { ([ "_"  ]) }
-        else {newnames})
-      ini( finalnames) code(code)
-      }
+   method maybeRename(aliases : nc.Dictionary<String,String>) -> Dcl {
+     if (aliases.containsKey(name)) 
+      then {dcl(aliases.at(name)) body (body) init (init) annot (annotations)}
+      else {self}
+   }
 }
 
 
@@ -141,13 +126,14 @@ class obj(name' : String)
      }}
      false
    }
+
    method initialise { 
      def initCode = nc.list ([ ])
      for (supers) do { i -> initCode.addAll(i.initialise) }
      for (traits) do { i -> initCode.addAll(i.initialise) }
-     initCode.add( ini ([ ])  code ( "// from {name}" ) )
+     initCode.add "// from {name}"
      for (locals) do { i -> if ("" != i.init) then {
-               initCode.add( ini ([ i.name ]) code "as ({i.init})" ) }}
+               initCode.add( i.init ) }}
      return initCode
    }
    
@@ -178,7 +164,7 @@ class obj(name' : String)
    }
 }
 
-
+//handle excludes as a decorater on objs
 class obj (name' : String ) 
         from(base : Obj)
         excludes ( excls : nc.Sequence<String> ) -> Obj {
@@ -190,8 +176,32 @@ class obj (name' : String )
      method structure -> nc.Sequence<String> {
         base.structure.filter { each -> ! ( excls.contains(each.name)) }
      }
-     method initialise -> nc.Sequence<String> {
-        base.initialise.map { each -> each.excluding( excls ) }
+     method initialise -> nc.Sequence<String> {base.initialise}
+     method annotations -> nc.Sequence<String> {base.annotations}
+}
+
+//handle aliases as a decorator on objs
+class obj (name' : String ) 
+        from(base : Obj)
+        aliases ( aliases : Dictionary<String,String> ) -> Obj {
+     inherits obj( name' )
+        inherit ([ ])
+        use ([ ]) 
+        declare ([ ])  
+        annot ([ ]) 
+
+     print "aliasing: {name}"
+     print "via {aliases}"
+
+     method structure -> nc.Sequence<String> {
+        def bs = base.structure
+        def xtras = nc.list ([ ])
+        for (bs) do { each -> 
+          if (aliases.containsKey(each.name)) 
+            then { xtras.add( each.maybeRename( aliases ) ) }
+        }
+        bs ++ xtras
      }
+     method initialise -> nc.Sequence<String> {base.initialise}
      method annotations -> nc.Sequence<String> {base.annotations}
 }

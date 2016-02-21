@@ -7,6 +7,8 @@ method list(x) {oldcol.list.withAll(x)}
 method seq(x) {oldcol.sequence.withAll(x)}
 method set(x) {oldcol.set.withAll(x)}
 method dictionary(x) {oldcol.dictionary.withAll(x)}
+method dict(x) {oldcol.dictionary.withAll(x)}
+method key(k) value(v) {oldcol.key(k) value(v)}
 
 type Sequence<T> = col.Sequence<T>
 type Collection<T> = col.Collection<T>
@@ -30,7 +32,7 @@ class outputStream {
              atNewline := true}                      
   method addSpaces(n) { 
          if (n > 0) then {
-             for (1 .. n) do { _ -> buffer.add " "}}} //hate _ -> here
+             for (1 .. n) do { _ -> buffer.add " "}}} //kjx hates _ -> here
                              
   method asString {
     var str := ""
