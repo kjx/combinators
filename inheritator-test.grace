@@ -106,10 +106,10 @@ suite "object" do {
      assert (d1a == d1a') description "d1a==d1a'"
      assert (d1f != d2) description "d1!=d2"
      assert (d1 <-!-> d1) description "d1 conflicts d1"
-     assert (!(d1 <-!-> d2)) description "d1 NOT conflicts d2"
+     deny ((d1 <-!-> d2)) description "d1 NOT conflicts d2"
      assert (d1 <-!-> d11) description "d1 conflicts d11"
      assert (d11 <-!-> d1) description "d11 conflicts d1"
-     assert (!(d2 <-!-> d3)) description "d2 NOT conflicts d3"
+     deny ((d2 <-!-> d3)) description "d2 NOT conflicts d3"
   }
 
 
@@ -119,7 +119,7 @@ suite "object" do {
      assert(o1.structure.size) shouldBe 0
      assert(o1.initialise.size) shouldBe 1
      assert(o1.asString) shouldBe "method o returning object \{\n\}\n"
-     assert(! o1.structureConflicts) description "o1 structureConflicts"
+     deny(o1.structureConflicts) description "o1 structureConflicts"
   }
 
 
@@ -129,7 +129,7 @@ suite "object" do {
      assert(o2.structure.size) shouldBe 0
      assert(o2.initialise.size) shouldBe 2
      assert(o2.asString) shouldBe "method o2 returning object \{\n  inherits o\n\}\n"
-     assert(! o2.structureConflicts) description "o2 structureConflicts"
+     deny(o2.structureConflicts) description "o2 structureConflicts"
 
 
      assert(t1) hasType( i.Obj )     
@@ -137,9 +137,9 @@ suite "object" do {
      assert(t1.annotations.size) shouldBe 0
      assert(t1.structure.size) shouldBe 2
      assert(t1.initialise.size) shouldBe 1
-     assert(! t1.structureConflicts) description "t1 structureConflicts"
+     deny(t1.structureConflicts) description "t1 structureConflicts"
 
-     assert(! c1.structureConflicts) description "c1 structureConflicts"
+     deny(c1.structureConflicts) description "c1 structureConflicts"
   }
 
   def x1 = i.obj "x1"
@@ -173,12 +173,11 @@ suite "object" do {
     annot ([ ])
 
   test "flatconflicts" do { 
-    assert (x1.structureConflicts) description "x1 structureConficts"
-    assert (!x2.structureConflicts) description "x2 structureConficts"
-    assert (!x3.structureConflicts) description "x3 structureConficts"
-
-    assert (!x4.structureConflicts) description "x4 structureConficts"
-    assert (x5.structureConflicts) description "x5 structureConficts"
+    assert {x1.structure} shouldRaise (i.InheritanceError)
+    deny (x2.structureConflicts) description "x2 structureConficts"
+    deny (x3.structureConflicts) description "x3 structureConficts"
+    deny (x4.structureConflicts) description "x4 structureConficts"
+    assert {x5.structure} shouldRaise (i.InheritanceError)
   }
 
  
@@ -216,10 +215,10 @@ suite "object" do {
     assert(sizeOfVariadicList(c1x2.structure)) shouldBe 2
     assert(sizeOfVariadicList(c1x3.structure)) shouldBe 1
     assert(sizeOfVariadicList(c1x4.structure)) shouldBe 0
-    assert (!x5x1.structureConflicts) description "x5x1 structureConficts"
-    assert (!x5x2.structureConflicts) description "x5x2 structureConficts"
-    assert (!x5x3.structureConflicts) description "x5x3 structureConficts"
-    assert (!x5x4.structureConflicts) description "x5x4 structureConficts"
+    deny (x5x1.structureConflicts) description "x5x1 structureConficts"
+    deny (x5x2.structureConflicts) description "x5x2 structureConficts"
+    deny (x5x3.structureConflicts) description "x5x3 structureConficts"
+    deny (x5x4.structureConflicts) description "x5x4 structureConficts"
   }
 
   def c1a1 = i.obj "c1a1" from(c1) aliases (nc.dict ([ nc.key "name1" value "alias1" ]) )
@@ -239,13 +238,13 @@ suite "object" do {
     assert(sizeOfVariadicList(c1a1.structure)) shouldBe 3
     assert(sizeOfVariadicList(c1a2.structure)) shouldBe 2
     assert(sizeOfVariadicList(c1a3.structure)) shouldBe 4
-    assert(sizeOfVariadicList(c1a4.structure)) shouldBe 4
+    assert {sizeOfVariadicList(c1a4.structure)} shouldRaise (i.InheritanceError)
   }
   test "aliases3" do {
-    assert (!c1a1.structureConflicts) description "x5x1 structureConficts"
-    assert (!c1a2.structureConflicts) description "x5x2 structureConficts"
-    assert (!c1a3.structureConflicts) description "x5x3 structureConficts"
-    assert (c1a4.structureConflicts) description "x5x4 structureConficts"
+    deny (c1a1.structureConflicts) description "x5x1 structureConficts"
+    deny (c1a2.structureConflicts) description "x5x2 structureConficts"
+    deny (c1a3.structureConflicts) description "x5x3 structureConficts"
+    assert {c1a4.structure} shouldRaise (i.InheritanceError)
   }
 }
 

@@ -127,6 +127,9 @@ class obj(name' : String)
      
      def finalStructure = override(supersAndTraits) with(locals) 
 
+     if (declarationConflicts(finalStructure)) 
+       then {InheritanceError.raise "TRAIT CONFLICT"}
+
      finalStructure
    }
 
@@ -233,22 +236,28 @@ class obj (name' : String )
 class obj (name' : String ) 
         from(base : Obj)
         aliases ( aliases : Dictionary<String,String> ) -> Obj {
-     inherits obj( name' )
+   inherits obj( name' )
         inherit ([ ])
         use ([ ]) 
         declare ([ ])  
         annot ([ ]) 
 
-     method structure -> nc.Sequence<String> {
-        def bs = base.structure
-        def xtras = nc.list ([ ])
-        for (bs) do { each -> 
+   method structure -> nc.Sequence<String> {
+     def bs = base.structure
+     def xtras = nc.list ([ ])
+     for (bs) do { each -> 
           if (aliases.containsKey(each.name)) 
             then { xtras.add( each.maybeRename( aliases )
-                                  .withAnnotation( "confidential" ) ) }
-        }
-        bs ++ xtras
+                                  .withAnnotation ([ "confidential" ]) ) }
      }
-     method initialise -> nc.Sequence<String> {base.initialise}
-     method annotations -> nc.Sequence<String> {base.annotations}
+     def finalStructure = bs ++ xtras
+
+     if (declarationConflicts(finalStructure)) 
+       then {InheritanceError.raise "TRAIT CONFLICT"}
+
+     finalStructure
+   }
+
+   method initialise -> nc.Sequence<String> {base.initialise}
+   method annotations -> nc.Sequence<String> {base.annotations}
 }
