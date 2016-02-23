@@ -87,35 +87,26 @@ method allStructures(ms : nc.Seq<String>) within(ct : String) annot(anns : nc.Se
 // printAll(allStructures ([ "a", "b" ]) within "C" annot ([ "x" ]))
 
 
-
-method dumboX(n) {
+//calculate list product
+//code from Ruby from http://c2.com/cgi/wiki?EveryCombinationInManyProgrammingLanguages
+//in Haskell this is apparently just "squence"
+method dumbo( n ) {
   def in = nc.seq(n)
-  if (sizeOfVariadicList(in) == 0) then {return ([  ]) }
-   
-  def llist = in.first
-  def llistsx = in.asList
-  llistsx.removeFirst
-  def llists = llistsx.asSequence
+  def list1 = in.first
+  def junko = in.asList
+  junko.removeFirst
+  def more_lists = junko.asSequence
 
-  print "llist={llist}"
-  print "llists={llists}"
-  def x = llist
-  def xs = dumbo(llists)  
+  def crest = if (more_lists.size == 0) 
+               then { ([ ([ ]) ]) } 
+               else { dumbo(more_lists) }
 
-  def result = nc.list ([ ])
-
-  return cons(x, xs)
+  list1.fold { combs, i -> 
+                  combs ++ crest.map { comb -> ([ i ]) ++ comb }  }
+        startingWith ([ ])
 }
 
 
-method dumboY (ll) {
- def l = nc.seq(ll)
- def fblock = { xs, yss ->      
-                    print "fblock xs={xs}"
-                    print "fblock yss={yss}"
-                    concat (xs.map { x -> yss.map { ys -> cons(x,ys) } } ) }
- l.fold(fblock) startingWith ([ ([ ]) ])
-}
 
 method concat (ll) {
   def res = nc.list ([ ])
@@ -124,10 +115,9 @@ method concat (ll) {
   }
   res.asSequence
 }
-
-
 assert( concat ([ ([ 1, 2 ]), ([ 3, 4 ]) ]) ) shouldBe ([ 1, 2, 3, 4 ])
-
+assert( concat ([ ([ 1, 2 ]), ([ 3, 4, 5, 6 ]), ([ 7, 8 ]) ]) ) 
+   shouldBe ([ 1, 2, 3, 4, 5, 6, 7, 8 ])
 
 method cons (car, cdr) { (nc.list ([ car ])).addAll(cdr).asSequence }
 assert (cons("a", nc.seq ([ "b", "c" ]) )) shouldBe ( nc.seq ([ "a", "b", "c" ]) )
@@ -135,17 +125,11 @@ assert (cons("a", nil)) shouldBe ( nc.seq ([ "a" ]) )
 method nil {nc.seq ([ ]) }
 assert(nil.size) shouldBe 0
 
-//print "(dumbo ([ ]) ) "
-//print (dumbo ([ ]) ) 
-//assert(dumbo ([ ]) ) shouldBe (nc.seq ([ ([ ]) ]) )
-//print "(dumbo ([ ([ \"ax\"       ]) ]) )"
-//print (dumbo ([ ([ "ax"       ]) ]) ) //   shouldBe( ([ ([ "ax"       ]) ]) )
-//print "(dumbo ([ ([ \"ax\" ]), ([  \"bx\"     ]) ]) )"
-//print (dumbo ([ ([ "ax"       ]),  ([ "bx"       ]) ]) ) 
-//shouldBe( ([ ([ "ax", "bx" ]) ]) ) 
-//print "Double Dumbo size = 4"
-print (dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]) ]) )
-//shouldBe( ([ ([ "ax", "bx" ]),  ([ "ax", "by" ]), ([ "ay", "bx" ]),  ([ "ay", "by" ]) ]) )
-//print "8-way Dumbo"
-//print (dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]), ([ "cx", "cy" ]) ]) )
-//size = 8
+
+assert (dumbo ([ ([ "ax", "ay" ]) ]) )  shouldBe( ([ ([ "ax" ]), ([ "ay"  ]) ]) )
+assert (dumbo ([ ([ "ax" ]),  ([ "bx" ]) ]) ) shouldBe( ([ ([ "ax", "bx" ]) ]) ) 
+assert (dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]) ]) )
+  shouldBe( ([ ([ "ax", "bx" ]),  ([ "ax", "by" ]), ([ "ay", "bx" ]),  ([ "ay", "by" ]) ]) )
+assert ((dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]), ([ "cx", "cy" ]) ]) ).size) 
+   shouldBe 8
+
