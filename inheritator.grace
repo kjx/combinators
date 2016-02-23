@@ -60,7 +60,7 @@ class dcl(name' : String)          //name being defined
    def name is public = name'
    def body is public = body'
    def init is public = init'
-   def annotations is public = annotations'  
+   def annotations is public = nc.set(annotations')
    method in(context:Obj) do(block) {
           block.apply( self, context )
    }
@@ -97,6 +97,9 @@ class dcl(name' : String)          //name being defined
       then {dcl(aliases.at(name)) body (body) init (init) annot (annotations)}
       else {self}
    }
+   method withAnnotation( ann : nc.seq<String> ) {
+     dcl(name) body (body) init (init) annot (annotations ++ ann)
+   }
 }
 
 
@@ -109,18 +112,60 @@ class obj(name' : String)
    uses annotationsTrait
    def name is public = name' 
    def annotations is public = annotations' //provide hook for anotationsTrait  
+
    method structure  { //onceler?
-     def struc = nc.list ([ ])
-     for (supers) do { i -> struc.addAll(i.structure) }
-     for (traits) do { i -> struc.addAll(i.structure) }
-     for (locals) do { i -> struc.add(i) }
-     return struc
+     def superStructure = nc.list ([ ])
+     for (supers) do { i -> superStructure.addAll(i.structure) }
+     
+     def traitStructure = nc.list ([ ])
+     for (traits) do { i -> traitStructure.addAll(i.structure) }
+
+     def supersAndTraits = override(superStructure) with(traitStructure) 
+     
+     def finalStructure = override(supersAndTraits) with(locals) 
+
+     finalStructure
    }
 
-   method structureConflicts {
-     def s = structure
-     for (s) do { a -> 
-       for (s) do { b ->
+   method override(low) with(high) {
+     var lows := nc.seq(low)  //avoid side fx on low
+     var highs := nc.seq ([ ])
+     for (high) do { d ->
+         if (!d.isaAbstract) 
+           then { //concrete
+                  lows := lows.filter { l -> ! ( l <-!-> d ) }
+                  highs := highs ++ ([ d ])
+           } else { //abstract, add only if nothing there
+             if (! declaration(d) conflictsWith(low)) 
+                    then { highs := highs ++ ([ d ]) }
+         }
+         if ((d.isaOverrides) && 
+             (! declaration(d) conflictsWith(low)))
+           then {Exception.raise "{d} in {name} does't override anything"} 
+     }
+
+     for (low) do { l -> 
+         if (l.isaFinal && ! nc.seq(lows).contains(l))
+           then {Exception.raise "{d} in {name} is FINAL but overridden"} 
+     }
+     nc.seq(lows ++ highs)
+   }
+
+   method declaration(d) conflictsWith( dlist ) {
+      dlist.fold { result, elem -> result || (elem <-!-> d) } startingWith (false)
+   }
+
+   //conflicts within local definitions
+   method localConflicts { declarationConflicts( locals ) } 
+
+   //conflcts with overall structure
+   method structureConflicts { 
+             localConflicts || declarationConflicts ( structure ) }
+
+   //helper method to check conflicts in a list of declarations
+   method declarationConflicts ( dcls ) {
+     for (dcls) do { a -> 
+       for (dcls) do { b ->
           if (a <-!-> b) then {
              if (a != b) then {return true}}
      }}
@@ -190,15 +235,13 @@ class obj (name' : String )
         declare ([ ])  
         annot ([ ]) 
 
-     print "aliasing: {name}"
-     print "via {aliases}"
-
      method structure -> nc.Sequence<String> {
         def bs = base.structure
         def xtras = nc.list ([ ])
         for (bs) do { each -> 
           if (aliases.containsKey(each.name)) 
-            then { xtras.add( each.maybeRename( aliases ) ) }
+            then { xtras.add( each.maybeRename( aliases )
+                                  .withAnnotation( "confidential" ) ) }
         }
         bs ++ xtras
      }

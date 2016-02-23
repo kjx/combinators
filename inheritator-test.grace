@@ -139,8 +139,8 @@ suite "object" do {
 
   def x3 = i.obj "x3"
     inherit ([ c1 ]) 
-    use ([ ])
-    declare ([ d11 ])
+    use ([ t12 ])
+    declare ([  ])
     annot ([ ])
 
   def x4 = i.obj "x4"
@@ -155,12 +155,12 @@ suite "object" do {
     declare ([ ])
     annot ([ ])
 
-
   test "flatconflicts" do { 
     assert (x1.structureConflicts) description "x1 structureConficts"
-    assert (x2.structureConflicts) description "x2 structureConficts"
-    assert (x3.structureConflicts) description "x3 structureConficts"
-    assert (x4.structureConflicts) description "x4 structureConficts"
+    assert (!x2.structureConflicts) description "x2 structureConficts"
+    assert (!x3.structureConflicts) description "x3 structureConficts"
+
+    assert (!x4.structureConflicts) description "x4 structureConficts"
     assert (x5.structureConflicts) description "x5 structureConficts"
   }
 
@@ -204,32 +204,13 @@ suite "object" do {
     assert (!x5x3.structureConflicts) description "x5x3 structureConficts"
     assert (!x5x4.structureConflicts) description "x5x4 structureConficts"
   }
-  print "Done exclusions"
 
   def c1a1 = i.obj "c1a1" from(c1) aliases (nc.dict ([ nc.key "name1" value "alias1" ]) )
-  print "c1a1"
-  print (c1a1) 
-
-  print "starting c1a2"
-
-  print ( ([ nc.key "noname" value "alias1" ]) )
-  print (nc.dict ([ nc.key "noname" value "alias1" ]) )
-
   def c1a2 = i.obj "c1a2" from(c1) aliases (nc.dict ([ nc.key "noname" value "alias1" ]) )
-  print "c1a2"
-  print (c1a2) 
-
   def c1a3 = i.obj "c1a3" from(c1) aliases (nc.dict ([ nc.key "name1" value "alias1", 
                           nc.key "name3" value "alias3" ]) )
-  print "c1a3"
-  print (c1a3) 
-
   def c1a4 = i.obj "c1a4" from(c1) aliases (nc.dict ([ nc.key "name1" value "aliasX", 
                           nc.key "name3" value "aliasX" ]) )
-  print "c1a4"
-  print (c1a4) 
-
-  print "sippu"
 
   test "aliases1" do {
     assert((d1.maybeRename( nc.dict ([ nc.key "a" value "b" ]))).name) shouldBe "name1"
@@ -250,16 +231,28 @@ suite "object" do {
     assert (c1a4.structureConflicts) description "x5x4 structureConficts"
   }
 
+
+  def d1a = i.dcl "name1" body "body1" init "init1" annot ([ "abstract" ])
+  def d1o = i.dcl "name1" body "body1" init "init1" annot ([ "overrides" ])
+  def d1f = i.dcl "name1" body "body1" init "init1" annot ([ "final" ])
+
+
+  test "abstract" do {
+  }
+
+
+  test "override" do {
+  }
+ 
+  test "final" do {
+  }
+
+
 }
 
+
+
 //TODO
-//  Returns some thing very like a class/trait/object. 
-// Or is this a method on traits?
-// Or a set of methods? 
-
-//symmetric semantics
-//assymetric semantics
-
 //overriding annotation
 //circular inheritance?
 //diamond inheritance
