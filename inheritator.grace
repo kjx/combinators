@@ -214,6 +214,24 @@ class obj(name' : String)
       strs.addln "}"
       return strs.asString
    }
+
+   //calls  structure, can throw errors if struture is broken
+   method flatAsString {
+      def strs = nc.outputStream
+      strs.add("method {name}_flattened returning object ") 
+      if (annotations.size > 0) then {
+         strs.add "is "
+         annotations.do { each -> 
+            strs.add(each) } separatedBy { strs.add ", " }
+         strs.add " "}
+      strs.addln "\{"
+      strs.newlinetab := 2
+      for (structure) do { each -> strs.addln(each.asString) }
+      strs.newlinetab := 0
+      strs.addln "}"
+      return strs.asString
+   }
+
 }
 
 //handle excludes as a decorater on objs
