@@ -17,10 +17,16 @@ method sizeOfVariadicList( l ) {
   return s
 }
 
+method abs( n ) { //used only with %. Should at least be absmod...
+  if (n < 0) then {- n} else {n}
+}
+
 trait equalityTrait {
   method ==(other) { abstract }
   method !=(other) { ! (self == other) }  //KERNAN
 }
+//kjx end hacks
+
 
 
 method abstract {
@@ -976,7 +982,7 @@ class set<T> {
             method findPosition(x) is confidential {
                 def h = x.hash
                 def s = inner.size
-                var t := h % s
+                var t := abs(h % s)
                 var jump := 5
                 var candidate
                 while {
@@ -987,10 +993,10 @@ class set<T> {
                         return t
                     }
                     if (jump != 0) then {
-                        t := (t * 3 + 1) % s
+                        t := abs((t * 3 + 1) % s)
                         jump := jump - 1
                     } else {
-                        t := (t + 1) % s
+                        t := abs((t + 1) % s)
                     }
                 }
                 return t
@@ -998,7 +1004,7 @@ class set<T> {
             method findPositionForAdd(x) is confidential {
                 def h = x.hash
                 def s = inner.size
-                var t := h % s
+                var t := abs(h % s)
                 var jump := 5
                 var candidate
                 while {
@@ -1009,10 +1015,10 @@ class set<T> {
                         return t
                     }
                     if (jump != 0) then {
-                        t := (t * 3 + 1) % s
+                        t := abs((t * 3 + 1) % s)
                         jump := jump - 1
                     } else {
-                        t := (t + 1) % s
+                        t := abs((t + 1) % s)
                     }
                 }
                 return t
@@ -1267,17 +1273,17 @@ class dictionary<K,T> {
             method findPosition(x) is confidential {
                 def h = x.hash
                 def s = inner.size
-                var t := h % s
+                var t := abs(h % s)
                 var jump := 5
                 while {inner.at(t) != unused} do {
                     if (inner.at(t).key == x) then {
                         return t
                     }
                     if (jump != 0) then {
-                        t := (t * 3 + 1) % s
+                        t := abs((t * 3 + 1) % s)
                         jump := jump - 1
                     } else {
-                        t := (t + 1) % s
+                        t := abs((t + 1) % s)
                     }
                 }
                 return t
@@ -1285,17 +1291,17 @@ class dictionary<K,T> {
             method findPositionForAdd(x) is confidential {
                 def h = x.hash
                 def s = inner.size
-                var t := h % s
+                var t := abs(h % s)
                 var jump := 5
                 while {(inner.at(t) != unused).andAlso{inner.at(t) != removed}} do {
                     if (inner.at(t).key == x) then {
                         return t
                     }
                     if (jump != 0) then {
-                        t := (t * 3 + 1) % s
+                        t := abs((t * 3 + 1) % s)
                         jump := jump - 1
                     } else {
-                        t := (t + 1) % s
+                        t := abs((t + 1) % s)
                     }
                 }
                 return t
