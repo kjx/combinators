@@ -1,6 +1,10 @@
 //test.grace dialect by Andrew Black, destroyed by James Noble
 //based on minitest and gUnit by Andrew Black 
 
+// ASSERT should ALWAYS ALWAYS ALWAYS take a BLOCK!!!
+//likewinse deny etc.
+//block should know their code string, ot at least file and line no
+
 //KERNAN begin
 method valof (block) { block.apply }
 
@@ -83,7 +87,7 @@ method assert(block0) shouldRaise (desiredException) {
         } catch { raisedException:desiredException ->
             completedNormally := false
         } catch { raisedException ->
-            failBecause("code raised exception {raisedException.exception}" ++
+            failBecause("code raised exception {raisedException}" ++
                 ": \"{raisedException.message}\" instead of {desiredException}")
         }
         if (completedNormally) then {failBecause "code did not raise an exception"}
