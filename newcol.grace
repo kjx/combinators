@@ -1,7 +1,8 @@
 //dialect to fake new colletiosn etc in Kernan
 //client should say: method circumfix[ *x ] { nc.seq(x) }
-
 import "collections" as oldcol
+
+print "method circumfix[ *x ] \{ nc.seq(x) \}"
 
 method list(x) {oldcol.list.withAll(x)}
 method seq(x) {oldcol.sequence.withAll(x)}
