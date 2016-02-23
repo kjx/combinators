@@ -64,27 +64,19 @@ assert( (allAnnotations "a" within "C" annot ([ "conf", "abst" ])).size ) should
 
 //given a list of method names, generate all declaration strutures for those names
 method allMethods(ms : nc.Seq<String>) within(ct : String) annot(anns : nc.Seq<String>) {
+   ms.map { each ->  allAnnotations(each) within(ct) annot(anns) }
 }
-
-// print "AMab"
-// print( allMethods ([ "a", "b" ]) within "C" annot ([ "x" ])  )
-
-// print "AMabc"
-// print( allMethods ([ "a", "b", "c" ]) within "C" annot ([ "x", "y" ])  )
+assert ((allMethods ([ "a", "b" ]) within "C" annot ([ "x" ])).size) shouldBe 2
+assert ((allMethods ([ "a", "b", "c" ]) within "C" annot ([ "x", "y" ])).size) shouldBe 3
 
 
 //generate a list of structures with all combinations of methods and annotations
 method allStructures(ms : nc.Seq<String>) within(ct : String) annot(anns : nc.Seq<String>) {
-  def listOfStructures = nc.list ([ ])
-  for (allNonEmptyCombinations(ms)) do { namesInStructure -> 
-    // print "namesInStructure = {namesInStructure}"
-    // printAll (allAnnotations(namesInStructure) within(ct) annot(anns))
-  }
-  return listOfStructures
+  concat(allNonEmptyCombinations(ms).map { ns -> dumbo(allMethods(ns) within(ct) annot(anns)) })
 }
+assert ((allStructures ([ "a", "b" ]) within "C" annot ([ "x" ])).size) shouldBe 8
+//would like to do better but
 
-
-// printAll(allStructures ([ "a", "b" ]) within "C" annot ([ "x" ]))
 
 
 //calculate list product
@@ -106,6 +98,13 @@ method dumbo( n ) {
         startingWith ([ ])
 }
 
+assert (dumbo ([ ([ "ax", "ay" ]) ]) )  shouldBe( ([ ([ "ax" ]), ([ "ay"  ]) ]) )
+assert (dumbo ([ ([ "ax" ]),  ([ "bx" ]) ]) ) shouldBe( ([ ([ "ax", "bx" ]) ]) ) 
+assert (dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]) ]) )
+  shouldBe( ([ ([ "ax", "bx" ]),  ([ "ax", "by" ]), ([ "ay", "bx" ]),  ([ "ay", "by" ]) ]) )
+assert ((dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]), ([ "cx", "cy" ]) ]) ).size) 
+   shouldBe 8
+
 
 
 method concat (ll) {
@@ -125,11 +124,44 @@ assert (cons("a", nil)) shouldBe ( nc.seq ([ "a" ]) )
 method nil {nc.seq ([ ]) }
 assert(nil.size) shouldBe 0
 
+assert((allStructures ([ "m", "n" ]) within "C" annot ([ "confidential", "abstract", "final", "overrides" ])).size) shouldBe 288
+assert((allStructures ([ "m" ]) within "C" annot ([ "confidential", "abstract", "final", "overrides" ])).size) shouldBe 16
 
-assert (dumbo ([ ([ "ax", "ay" ]) ]) )  shouldBe( ([ ([ "ax" ]), ([ "ay"  ]) ]) )
-assert (dumbo ([ ([ "ax" ]),  ([ "bx" ]) ]) ) shouldBe( ([ ([ "ax", "bx" ]) ]) ) 
-assert (dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]) ]) )
-  shouldBe( ([ ([ "ax", "bx" ]),  ([ "ax", "by" ]), ([ "ay", "bx" ]),  ([ "ay", "by" ]) ]) )
-assert ((dumbo ([ ([ "ax", "ay" ]),  ([ "bx", "by" ]), ([ "cx", "cy" ]) ]) ).size) 
-   shouldBe 8
+def l1structures = nc.seq ([ ([ ]) ]) ++ (allStructures ([ "m" ]) within "L" annot ([ "confidential", "abstract", "final", "overrides" ])) 
+def c1structures = (allStructures ([ "m" ]) within "C" annot ([ "confidential", "abstract", "final", "overrides" ]))
+def t1structures = (allStructures ([ "m" ]) within "T1" annot ([ "confidential", "abstract", "final", "overrides" ]))
+
+//should be in a unicode module, a whole bunch of public defs! 
+//so we can write u.formFeed to get a form feed
+def formfeed = "\u000c"
+def formfeedsymbol = "\u240C"
+def ff = "\n\n\n\n\n"
+
+for (t1structures) do { traits -> 
+  for (l1structures) do { locals -> 
+    print "-------------------------"    
+    def t1 = i.obj "T1"
+              inherit ([ ]) 
+              use ([ ])
+              declare ( traits ) 
+              annot ([ ]) 
+    def l = i.obj "L"
+              inherit ([ ]) 
+              use ([ t1 ])
+              declare ( locals ) 
+              annot ([ ]) 
+    print(t1)
+    print(l)
+    var fs 
+    var fsValid := false
+    try { fs := l.flatAsString
+          fsValid := true } 
+      catch { ie : i.InheritanceError -> print (ie) }
+    if (fsValid) then { 
+              print "flattens into"
+              print (fs) 
+             }
+    print "-------------------------"
+  }
+}
 
