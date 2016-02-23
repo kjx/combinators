@@ -11,6 +11,7 @@ method sizeOfVariadicList( l ) {
 
 suite "nc"  do {
   test "output" do {
+    assert {i.InheritanceError.raise "FOO"} shouldRaise (i.InheritanceError)
     def s = nc.outputStream
     s.add "a"
     assert (s.asString) shouldBe "a"
@@ -26,40 +27,89 @@ suite "nc"  do {
   }
 }
 
-suite "object" do {
+def d1 = i.dcl "name1" body "body1" init "init1" annot ([ ])
+def d2 = i.dcl "name2" body "body2" init "" annot ([  ])
+def d3 = i.dcl "name3" body "" init "init3" annot ([  ])
+def d4 = i.dcl "name4" body "" init "" annot ([ "confidential", "stupid" ])
+def d11 = i.dcl "name1" body "body11" init "init11" annot ([  ])
 
-  def o1 = i.obj "o"
+def d1a = i.dcl "name1" body "body1" init "init1" annot ([ "abstract" ])
+def d1o = i.dcl "name1" body "body1" init "init1" annot ([ "overrides" ])
+def d1f = i.dcl "name1" body "body1" init "init1" annot ([ "final" ])
+def d1c = i.dcl "name1" body "body1" init "init1" annot ([ "confidential" ])
+def d1a' = i.dcl "name1" body "body1" init "init1" annot ([ "abstract" ])
+def d1o' = i.dcl "name1" body "body1" init "init1" annot ([ "overrides" ])
+def d1f' = i.dcl "name1" body "body1" init "init1" annot ([ "final" ])
+def d1c' = i.dcl "name1" body "body1" init "init1" annot ([ "confidential" ])
+
+
+def o1 = i.obj "o"
     inherit ([ ]) 
     use ([ ])
     declare ([ ])
     annot ([ ])
+ 
+def o2 = i.obj "o2"
+    inherit ([ o1 ]) 
+    use ([ ])
+    declare ([ ])
+    annot ([ ])
+
+def t1 = i.obj "t1"
+    inherit ([ ]) 
+    use ([ ])
+    declare ([ d2, d4 ])
+    annot ([ ])
+
+def t12 = i.obj "t12"
+    inherit ([ ]) 
+    use ([ ])
+    declare ([ d1, d2 ])
+    annot ([ ])
+
+def t113 = i.obj "t113"
+    inherit ([ ]) 
+    use ([ ])
+    declare ([ d11, d3 ])
+    annot ([ ])
 
 
-  def d1 = i.dcl "name1" body "body1" init "init1" annot ([ "confidential" ])
-  def d2 = i.dcl "name2" body "body2" init "" annot ([  ])
-  def d3 = i.dcl "name3" body "" init "init3" annot ([  ])
-  def d4 = i.dcl "name4" body "" init "" annot ([ "confidential", "stupid" ])
-  def d11 = i.dcl "name1" body "body11" init "init11" annot ([ "confidential" ])
+def c1 = i.obj "c1"
+    inherit ([ ]) 
+    use ([ ])
+    declare ([ d1, d3 ])
+    annot ([ ])
+
+
+
+
+suite "object" do {
 
   test "declname" do {
-     assert (d1.asString) shouldBe ("name1 is confidential \{body1\} = init1")
+     assert (d1c.asString) shouldBe ("name1 is confidential \{body1\} = init1")
      assert (d2.asString) shouldBe ("name2 \{body2\}")
      assert (d3.asString) shouldBe ("name3 = init3")
      assert (d4.asString) shouldBe ("name4 is confidential, stupid")
-     assert (d11.asString) shouldBe ("name1 is confidential \{body11\} = init11")
+     assert (d11.asString) shouldBe ("name1 \{body11\} = init11")
   }
   
   test "declannot" do {
-     assert (d1.isaConfidential) shouldBe (true)
+     assert (d1.isaConfidential) shouldBe (false)
+     assert (d1c.isaConfidential) shouldBe (true)
+     assert (d1f.isaFinal) shouldBe (true)
+     assert (d1o.isaOverrides) shouldBe (true)
+     assert (d1a.isaAbstract) shouldBe (true)
      assert (d2.isaAbstract) shouldBe (false)
+     assert (d1f.isaAbstract) shouldBe (false)
      assert (d1 == d1) description "d1==d1"
      assert (d1 != d2) description "d1!=d2"
+     assert (d1a == d1a') description "d1a==d1a'"
+     assert (d1f != d2) description "d1!=d2"
      assert (d1 <-!-> d1) description "d1 conflicts d1"
      assert (!(d1 <-!-> d2)) description "d1 NOT conflicts d2"
      assert (d1 <-!-> d11) description "d1 conflicts d11"
      assert (d11 <-!-> d1) description "d11 conflicts d1"
      assert (!(d2 <-!-> d3)) description "d2 NOT conflicts d3"
-
   }
 
 
@@ -71,39 +121,6 @@ suite "object" do {
      assert(o1.asString) shouldBe "method o returning object \{\n\}\n"
      assert(! o1.structureConflicts) description "o1 structureConflicts"
   }
-
- 
-  def o2 = i.obj "o2"
-    inherit ([ o1 ]) 
-    use ([ ])
-    declare ([ ])
-    annot ([ ])
-
-  def t1 = i.obj "t1"
-    inherit ([ ]) 
-    use ([ ])
-    declare ([ d2, d4 ])
-    annot ([ ])
-
-  def t12 = i.obj "t12"
-    inherit ([ ]) 
-    use ([ ])
-    declare ([ d1, d2 ])
-    annot ([ ])
-
-  def t113 = i.obj "t113"
-    inherit ([ ]) 
-    use ([ ])
-    declare ([ d11, d3 ])
-    annot ([ ])
-
-
-  def c1 = i.obj "c1"
-    inherit ([ ]) 
-    use ([ ])
-    declare ([ d1, d3 ])
-    annot ([ ])
-
 
 
   test "creator2" do {
@@ -230,21 +247,63 @@ suite "object" do {
     assert (!c1a3.structureConflicts) description "x5x3 structureConficts"
     assert (c1a4.structureConflicts) description "x5x4 structureConficts"
   }
+}
 
 
-  def d1a = i.dcl "name1" body "body1" init "init1" annot ([ "abstract" ])
-  def d1o = i.dcl "name1" body "body1" init "init1" annot ([ "overrides" ])
-  def d1f = i.dcl "name1" body "body1" init "init1" annot ([ "final" ])
 
+
+method testoverride( dcl1, dcl2 ) { 
+    def tpc1 = i.obj "tpc1"
+      inherit ([ ]) 
+      use ([ ])
+      declare ([ dcl1 ])
+      annot ([ ])
+    def tpc2 = i.obj "tpc2"
+      inherit ([ ]) 
+      use ([ ])
+      declare ([ dcl2 ])
+      annot ([ ])
+    def tpc3 = i.obj "tpc3"
+      inherit ([ tpc1 ]) 
+      use ([ tpc2 ])
+      declare ([  ])
+      annot ([ ])
+    return tpc3
+}
+
+suite "overrides" do {
+
+  test "confidenal" do {
+    assert (testoverride(d1c, d1c').structure.size) shouldBe 1
+    assert (testoverride(d1, d11).structure.size) shouldBe 1    
+    assert (testoverride(d1c, d1).structure.size) shouldBe 1
+    assert {testoverride(d1, d1c).structure.size} shouldRaise (i.InheritanceError)
+    assert {testoverride(d1a, d1c).structure.size} shouldRaise (i.InheritanceError)
+    assert (testoverride(d1c, d1a).structure.size) shouldBe 1
+  }
 
   test "abstract" do {
+    assert (testoverride(d1a, d1a).structure.size) shouldBe 1
+    assert (testoverride(d1a, d1a).structure.first.isaAbstract)
+    deny   (testoverride(d1a, d1).structure.first.isaAbstract)
+    deny   (testoverride(d1,  d1a).structure.first.isaAbstract)
+    deny   (testoverride(d1,  d1).structure.first.isaAbstract)
+    
   }
 
 
   test "override" do {
+    assert { i.obj "orx1" inherit ([ ]) use ([ ]) declare ([ d1o ])  annot ([ ]).structure } shouldRaise (i.InheritanceError)  
+    assert ({ i.obj "orx2" inherit ([ ]) use ([ t12 ]) declare ([ d1o ])  annot ([ ]) }.apply.structure.size) shouldBe 2
+    assert ({ i.obj "orx2" inherit ([ t12 ]) use ([ ]) declare ([ d1o ])  annot ([ ]) }.apply.structure.size) shouldBe 2 
   }
  
   test "final" do {
+    assert (testoverride(d1a, d1f).structure.size) shouldBe 1
+    assert (testoverride(d1c, d1f).structure.size) shouldBe 1
+    assert ({ i.obj "frx1" inherit ([ ]) use ([ t12 ]) declare ([ d1f ])  annot ([ ]) }.apply.structure.size) shouldBe 2
+    assert {testoverride(d1f, d1a).structure.size} shouldRaise (i.InheritanceError)  
+    assert {testoverride(d1f, d1).structure.size} shouldRaise (i.InheritanceError)  
   }
 
 

@@ -3,7 +3,7 @@ import "newcol" as nc
 method circumfix[ *x ] { nc.seq(x) }
 method printAll (x) {for (x) do { each -> print(each) }}
 
-//declaration
+//declarations
 type Dcl = type { 
      name -> String
      body -> String
@@ -29,6 +29,8 @@ trait equalityTrait {
 }
 
 
+def InheritanceError is public  = Exception.refine "InheritanceError"
+
 
 
 //this trait defines shorthand accessors for the annotations slot.
@@ -37,6 +39,7 @@ trait annotationsTrait {
   method isaConfidential { annotations.contains "confidential" }
   method isaPublic       { ! isaConfidential }
   method isaAbstract     { annotations.contains "abstract" }
+  method isaConcrete     { ! isaAbstract }
   method isaReadable     { isaPublic || annotations.contains "readable" }
   method isaWriteable    { isaPublic || annotations.contains "writeable" }
   method isaFinal        { annotations.contains "final" }
@@ -90,7 +93,7 @@ class dcl(name' : String)          //name being defined
    method <-!-> (other) {
      match (other)
        case { od : Dcl -> od.name == name } //cheats
-       case { _ -> Error.raise "<-!-> should only be called on Dcls" }
+       case { _ -> Error "<-!-> should only be called on Dcls" }
    }
    method maybeRename(aliases : nc.Dictionary<String,String>) -> Dcl {
      if (aliases.containsKey(name)) 
@@ -131,22 +134,23 @@ class obj(name' : String)
      var lows := nc.seq(low)  //avoid side fx on low
      var highs := nc.seq ([ ])
      for (high) do { d ->
-         if (!d.isaAbstract) 
-           then { //concrete
-                  lows := lows.filter { l -> ! ( l <-!-> d ) }
-                  highs := highs ++ ([ d ])
-           } else { //abstract, add only if nothing there
-             if (! declaration(d) conflictsWith(low)) 
-                    then { highs := highs ++ ([ d ]) }
+       def overriddens = nc.seq(lows.filter { l ->  ( l <-!-> d ) })
+       for (overriddens) do {o -> 
+           if (o.isaFinal) then {InheritanceError.raise "OVERRIDE FINAL"}
+           if (!o.isaConfidential && d.isaConfidential) 
+             then {InheritanceError.raise "OVERRIDE CONFIDENTIAL"}
          }
-         if ((d.isaOverrides) && 
-             (! declaration(d) conflictsWith(low)))
-           then {Exception.raise "{d} in {name} does't override anything"} 
-     }
-
-     for (low) do { l -> 
-         if (l.isaFinal && ! nc.seq(lows).contains(l))
-           then {Exception.raise "{d} in {name} is FINAL but overridden"} 
+       if (d.isaConcrete) 
+          then {
+            lows := lows.asList.removeAll(overriddens).asSequence
+            highs := highs ++ ([ d ]) }
+          elseif { d.isaAbstract && (overriddens.size == 0) } then {
+            // only add if there's no overridden declaration
+            // no overriddens so no need to remove from lows
+            highs := highs ++ ([ d ]) 
+        } 
+       if ((d.isaOverrides) && (overriddens.size == 0)) 
+           then {InheritanceError.raise "{d} in {name} does't override anything"} 
      }
      nc.seq(lows ++ highs)
    }
