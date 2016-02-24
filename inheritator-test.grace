@@ -295,6 +295,12 @@ suite "overrides" do {
     assert { i.obj "orx1" inherit ([ ]) use ([ ]) declare ([ d1o ])  annot ([ ]).structure } shouldRaise (i.InheritanceError)  
     assert ({ i.obj "orx2" inherit ([ ]) use ([ t12 ]) declare ([ d1o ])  annot ([ ]) }.apply.structure.size) shouldBe 2
     assert ({ i.obj "orx2" inherit ([ t12 ]) use ([ ]) declare ([ d1o ])  annot ([ ]) }.apply.structure.size) shouldBe 2 
+
+    assert { i.obj "oralias" 
+               inherit ([ ]) 
+               use ([ i.obj "t1alias" from(t12) aliases (nc.dict ([ nc.key "name1" value "name2" ]) ) ]) 
+               declare ([ ])  
+               annot ([ ]).structure } shouldRaise (i.InheritanceError)  
   }
  
   test "final" do {
