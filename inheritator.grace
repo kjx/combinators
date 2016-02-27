@@ -244,7 +244,39 @@ class obj (name' : String )
         declare ([ ])  
         annot ([ ]) 
      method structure -> nc.Sequence<String> {
-        base.structure.filter { each -> ! ( excls.contains(each.name)) }
+        base.structure.filter { each ->
+                                  def keep = ! ( excls.contains(each.name)) 
+                                  if (each.isaFinal && !keep) 
+                                      then { InheritanceError.raise "can't exclude a final" } }
+     }
+     method initialise -> nc.Sequence<String> {base.initialise}
+     method annotations -> nc.Sequence<String> {base.annotations}
+}
+
+
+//handle excludes as a decorater on objs
+class obj (name' : String ) 
+        from(base : Obj)
+        excludesAsAbstract ( excls : nc.Sequence<String> ) -> Obj {
+     inherits obj( name' )
+        inherit ([ ])
+        use ([ ]) 
+        declare ([ ])  
+        annot ([ ]) 
+     method structure -> nc.Sequence<String> {
+       def bs = base.structure
+       def finalStructure = bs.map { each -> 
+          if (each.isaFinal) then { InheritanceError.raise "can't exclude a final" } 
+          if (excls.contains(each.name))
+            then { each.withAnnotation ([ "abstract" ]) }
+            else { each }
+       }
+
+
+       if (declarationConflicts(finalStructure)) 
+         then {InheritanceError.raise "TRAIT CONFLICT"}
+
+       finalStructure.asSequence
      }
      method initialise -> nc.Sequence<String> {base.initialise}
      method annotations -> nc.Sequence<String> {base.annotations}

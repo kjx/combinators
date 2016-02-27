@@ -302,6 +302,7 @@ suite "overrides" do {
                declare ([ ])  
                annot ([ ]).structure } shouldRaise (i.InheritanceError)  
   }
+
  
   test "final" do {
     assert (testoverride(d1a, d1f).structure.size) shouldBe 1
@@ -309,19 +310,37 @@ suite "overrides" do {
     assert ({ i.obj "frx1" inherit ([ ]) use ([ t12 ]) declare ([ d1f ])  annot ([ ]) }.apply.structure.size) shouldBe 2
     assert {testoverride(d1f, d1a).structure.size} shouldRaise (i.InheritanceError)  
     assert {testoverride(d1f, d1).structure.size} shouldRaise (i.InheritanceError)  
+    assert {testoverride(d1f, d1).structure.size} shouldRaise (i.InheritanceError)  
+
   }
 
+
+  def xf1 = i.obj "xf1"
+    inherit ([ ]) 
+    use ([ ])
+    declare ([ d1f ])
+    annot ([ ])
+
+  def xf2 = i.obj "xf2"
+    inherit ([ i.obj "x1fd" from(xf1) excludes ([ "name1" ]) ]) 
+    use ([ ])
+    declare ([ ])
+    annot ([ ])
+
+  test "final-excluded" do {
+    assert {xf2.structure.size} shouldRaise  (i.InheritanceError)  
+  }
 
 }
 
 
 
 //TODO
-//overriding annotation
-//circular inheritance?
 //diamond inheritance
 //overloading(?)
 //trait requirements
+//""use"" only traits
+//Default Method
 
 //excluding something that isn't there
 //aliasin somethin that isn't there
@@ -329,4 +348,10 @@ suite "overrides" do {
 //required/abstract method is not provided
 //alaising only half of a var (is that all it does)     
 
-//automatic generation 
+
+
+
+
+
+
+

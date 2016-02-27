@@ -135,8 +135,19 @@ class whiteSpaceParser {
  def brand = "whiteSpaceParser"
  method parse(in) {
    var current := in
-   while {current.take(1) == " "} 
-     do {current := current.rest(1)}
+
+   while {(current.take(1) == " ") || (current.take(2) == "\\")} do {
+     while {current.take(1) == " "} 
+       do {current := current.rest(1)}
+     if (current.take(2) == "//")
+       then {
+         current := current.rest(2)
+         while {current.take(1) != "\n"} 
+           do {current := current.rest(1)}
+         current := current.take(1)
+       }
+   }
+
    if (current != in) then {
       return parseSuccess(current, " ")
      } else {
@@ -1093,8 +1104,8 @@ def typeOp = rule { opsymbol("|") | opsymbol("&") | opsymbol("+") }
 def typeOpExpression = rule {  
   var otherOperator 
   basicTypeExpression ~ opt(ws) ~
-    opt( guard(typeOp, { s -> otherOperator:= s
-                         true }) 
+    opt( guard(typeOp, { s -> otherOperator:= s;
+                              true })
           ~ rep1sep(basicTypeExpression ~ opt(ws),
              guard(typeOp, { s -> s == otherOperator })
         )
@@ -1131,8 +1142,8 @@ def expression = rule { opExpression }
 def opExpression = rule { 
   var otherOperator 
   addExpression ~ opt(ws) ~
-    opt( guard(otherOp, { s -> otherOperator:= s
-                          true }) ~ rep1sep(addExpression ~ opt(ws),
+    opt( guard(otherOp, { s -> otherOperator:= s;
+                               true }) ~ rep1sep(addExpression ~ opt(ws),
            guard(otherOp, { s -> s == otherOperator })
         )
     )
