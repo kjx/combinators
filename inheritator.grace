@@ -130,7 +130,7 @@ class obj(name' : String)
      if (declarationConflicts(finalStructure)) 
        then {InheritanceError.raise "TRAIT CONFLICT"}
 
-     finalStructure
+     finalStructure.asSequence
    }
 
    method override(low) with(high) {
@@ -247,14 +247,15 @@ class obj (name' : String )
         base.structure.filter { each ->
                                   def keep = ! ( excls.contains(each.name)) 
                                   if (each.isaFinal && !keep) 
-                                      then { InheritanceError.raise "can't exclude a final" } }
+                                      then { InheritanceError.raise "can't exclude a final" }
+                                  keep }
      }
      method initialise -> nc.Sequence<String> {base.initialise}
      method annotations -> nc.Sequence<String> {base.annotations}
 }
 
 
-//handle excludes as a decorater on objs
+//handle excludesAsAbtract as a decorater on objs
 class obj (name' : String ) 
         from(base : Obj)
         excludesAsAbstract ( excls : nc.Sequence<String> ) -> Obj {
@@ -271,7 +272,6 @@ class obj (name' : String )
             then { each.withAnnotation ([ "abstract" ]) }
             else { each }
        }
-
 
        if (declarationConflicts(finalStructure)) 
          then {InheritanceError.raise "TRAIT CONFLICT"}
@@ -305,7 +305,7 @@ class obj (name' : String )
      if (declarationConflicts(finalStructure)) 
        then {InheritanceError.raise "TRAIT CONFLICT"}
 
-     finalStructure
+     finalStructure.asSequence
    }
 
    method initialise -> nc.Sequence<String> {base.initialise}
