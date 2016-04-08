@@ -9,7 +9,6 @@ print "Getting Parsers"
 class exports { 
 
 
-
 //   method currentIndentation {outer.currentIndetation}
 //   method currentIndentation:= (x) {outer.currentIndetation:= x}
 //   type InputStream = outer.InputStream
