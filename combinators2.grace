@@ -130,6 +130,9 @@ test {program.parse(t001ss).succeeded}
 test {program.parse(t001b).succeeded}
      expecting(true)
      comment "001b-blockarg"
+
+
+
 testProgramOn("self") correctly("004-self")
 testProgramOn("(self)") correctly("004p-self")
 testProgramOn("(hello)") correctly("004p-hello")
