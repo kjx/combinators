@@ -117,7 +117,8 @@ testProgramOn "4xDEADBEEF" correctly "n1"
 method circumfix[ *x ] { x }
 
 testProgramOn "method foo \{\}" correctly "id1"
-def reservedIDs = [ "class", "def", "dialect", "exclude", "import", "inherit", "interface", "is", "method", "object", "outer", "prefix", "required", "return", "super", "trait", "type", "use", "var", "where" ]
+testProgramOn "method super \{\}" correctly "id1"
+def reservedIDs = [ "class", "def", "dialect", "exclude", "import", "inherit", "interface", "is", "method", "object", "outer", "prefix", "required", "return", "trait", "type", "use", "var", "where" ]
 
 for (reservedIDs) do { id -> 
   testProgramOn ("method " ++ id ++ " \{\}") wrongly "id1"

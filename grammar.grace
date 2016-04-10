@@ -98,7 +98,7 @@ class exports {
      // if we keep this, note that in a typeExpression context { a; } is  interpreted as type { a; }
      // otherwise as the block { a; }
 
-  def pathTypeExpression = rule { opt(superId ~ dot) ~ rep1sep((identifier ~ genericActuals),dot) }
+  def pathTypeExpression = rule { opt(listOfOuters ~ dot) ~ rep1sep((identifier ~ genericActuals),dot) }
 
   def parenTypeExpression = rule { lParen ~ typeExpression ~ rParen } 
 
@@ -133,8 +133,8 @@ class exports {
 
   def addExpression = rule { rep1sep(multExpression, addOp) }
   def multExpression = rule { rep1sep(prefixExpression, multOp) }
-  def prefixExpression = rule { (rep(otherOp) ~ selectorExpression) | (rep1(otherOp) ~ superId) } 
-        // we can have !super 
+  def prefixExpression = rule { (opt(otherOp) ~ selectorExpression) | (otherOp ~ listOfOuters) } 
+        // we can have !outer or !outer.outer
 
   def selectorExpression = rule { primaryExpression ~ rep(selector) }
 
@@ -164,12 +164,12 @@ class exports {
 
   def implicitSelfRequest = rule { requestWithArgs |  rep1sep(unaryRequest,dot) }
 
-  def primaryExpression = rule { literal | nonNakedSuper | implicitSelfRequest | parenExpression }  
+  def primaryExpression = rule { literal | listOfOuters | implicitSelfRequest | parenExpression }  
 
   def parenExpression = rule { lParen ~ rep1sep(drop(opt(ws)) ~ expression, semicolon) ~ rParen } 
-                                        // TODO should parenExpression be around a codeSequence?
 
-  def nonNakedSuper = rule { superId ~ not(not( operator | lBrack )) }
+  // def nonNakedSuper = rule { superId ~ not(not( operator | lBrack )) }
+  def listOfOuters = rule { rep1sep(outerId, dot) }
 
   // "generics" 
   def genericActuals = rule { 
@@ -263,7 +263,6 @@ class exports {
   def prefixId = symbol "prefix" 
   def requiredId = symbol "required"
   def returnId = symbol "return"
-  def superId = symbol "super" 
   def traitId = symbol "trait" 
   def typeId = symbol "type" 
   def useId = symbol "use"
@@ -273,7 +272,7 @@ class exports {
 
 
   //kernan
-  def reservedIdentifier = rule {selfLiteral | superId |  aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId |  interfaceId |  isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId |  superId |  traitId |  typeId |  useId |  varId |  whereId}
+  def reservedIdentifier = rule {selfLiteral | aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId |  interfaceId |  isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId | traitId |  typeId |  useId |  varId |  whereId}
 
   def reservedOp = rule {assign | equals | dot | arrow | colon | semicolon}  // this is not quite right
 
