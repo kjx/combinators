@@ -33,7 +33,7 @@ class exports {
                              lBrace ~ innerCodeSequence ~ rBrace }
   def classDeclaration = rule {
           classId ~ identifier ~ dot ~ classHeader ~ methodReturnType ~ whereClause ~ 
-                                 lBrace ~ inheritsClause ~ codeSequence ~ rBrace }
+                                 lBrace ~ inheritClause ~ codeSequence ~ rBrace }
 
   //def oldClassDeclaration = rule { classId ~ identifier ~ lBrace ~ 
   //                             opt(genericFormals ~ blockFormals ~ arrow) ~ codeSequence ~ rBrace }
@@ -43,7 +43,7 @@ class exports {
   def methodHeader = rule { accessingAssignmentMethodHeader | accessingMethodHeader | assignmentMethodHeader | methodWithArgsHeader | unaryMethodHeader | operatorMethodHeader | prefixMethodHeader  } 
 
   def classHeader = rule { methodWithArgsHeader | unaryMethodHeader }
-  def inheritsClause = rule { opt( inheritsId ~ expression ~ semicolon ) }  
+  def inheritClause = rule { opt( inheritId ~ expression ~ semicolon ) }  
 
   def unaryMethodHeader = rule { identifier ~ genericFormals } 
   def methodWithArgsHeader = rule { firstArgumentHeader ~ repsep(argumentHeader,opt(ws)) }
@@ -196,7 +196,7 @@ class exports {
                                    ~ innerCodeSequence ~ rBrace }
   def selfLiteral = symbol "self" 
   def numberLiteral = trim(digitStringParser)
-  def objectLiteral = rule { objectId ~ lBrace ~ inheritsClause ~ codeSequence ~ rBrace }
+  def objectLiteral = rule { objectId ~ lBrace ~ inheritClause ~ codeSequence ~ rBrace }
 
   //these are *not* in the spec - EELCO 
   def tupleLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
@@ -247,24 +247,33 @@ class exports {
                           // probably works but runs out of stack
 
   // anything in this list needs to be in reservedIdentifier below (or it won't do what you want)
-  def superId = symbol "super" 
-  def extendsId = symbol "extends"
-  def inheritsId = symbol "inherits"
+  def aliasId = symbol "alias"
+  def asId = symbol "as"
   def classId = symbol "class" 
-  def objectId = symbol "object" 
-  def typeId = symbol "type" 
-  def whereId = symbol "where" 
   def defId = symbol "def" 
-  def varId = symbol "var" 
-  def methodId = symbol "method" 
-  def prefixId = symbol "prefix" 
+  def dialectId = symbol "dialect"
+  def excludeId = symbol "exclude"
+  def importId = symbol "import"
+  def inheritId = symbol "inherit"
   def interfaceId = symbol "interface"
+  def isId = symbol "is"
+  def methodId = symbol "method" 
+  def objectId = symbol "object" 
+  def outerId = symbol "outer" 
+  def prefixId = symbol "prefix" 
+  def requiredId = symbol "required"
   def returnId = symbol "return"
-  //WTF is OUTER??? - EELCO July 25
+  def superId = symbol "super" 
+  def traitId = symbol "trait" 
+  def typeId = symbol "type" 
+  def useId = symbol "use"
+  def varId = symbol "var" 
+  def whereId = symbol "where" 
+
 
 
   //kernan
-  def reservedIdentifier = rule {selfLiteral | superId | extendsId | inheritsId | classId | objectId | typeId | whereId | returnId | defId | varId | methodId | prefixId | interfaceId } // more to come
+  def reservedIdentifier = rule {selfLiteral | superId |  aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId |  interfaceId |  isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId |  superId |  traitId |  typeId |  useId |  varId |  whereId}
 
   def reservedOp = rule {assign | equals | dot | arrow | colon | semicolon}  // this is not quite right
 

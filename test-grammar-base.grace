@@ -112,3 +112,13 @@ testProgramOn "0x" wrongly "n1"
 testProgramOn "0x1234" correctly "n1"
 testProgramOn "2xDEADBEEF" correctly "n1"
 testProgramOn "4xDEADBEEF" correctly "n1"
+
+
+method circumfix[ *x ] { x }
+
+testProgramOn "method foo \{\}" correctly "id1"
+def reservedIDs = [ "class", "def", "dialect", "exclude", "import", "inherit", "interface", "is", "method", "object", "outer", "prefix", "required", "return", "super", "trait", "type", "use", "var", "where" ]
+
+for (reservedIDs) do { id -> 
+  testProgramOn ("method " ++ id ++ " \{\}") wrongly "id1"
+}
