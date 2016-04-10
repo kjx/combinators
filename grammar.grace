@@ -32,7 +32,7 @@ class exports {
           methodId ~ methodHeader ~ methodReturnType ~ whereClause ~
                              lBrace ~ innerCodeSequence ~ rBrace }
   def classDeclaration = rule {
-          classId ~ identifier ~ dot ~ classHeader ~ methodReturnType ~ whereClause ~ 
+          classId ~ classHeader ~ methodReturnType ~ whereClause ~ 
                                  lBrace ~ inheritClause ~ codeSequence ~ rBrace }
 
   //def oldClassDeclaration = rule { classId ~ identifier ~ lBrace ~ 
