@@ -45,7 +45,7 @@ class exports {
 
 
   //warning: order here is significant!
-  def methodHeader = rule { accessingAssignmentMethodHeader | accessingMethodHeader | assignmentMethodHeader | methodWithArgsHeader | unaryMethodHeader | operatorMethodHeader | prefixMethodHeader  } 
+  def methodHeader = rule {  assignmentMethodHeader | methodWithArgsHeader | unaryMethodHeader | operatorMethodHeader | prefixMethodHeader  } 
 
   def classHeader = methodHeader    // rule { methodWithArgsHeader | unaryMethodHeader }
   def reuseClause = rule { (inheritId | useId) ~ expression ~ semicolon ~ rep(reuseModifiers) }  
@@ -58,10 +58,8 @@ class exports {
   def firstArgumentHeader = rule { identifier ~ genericFormals ~ methodFormals }
   def argumentHeader = rule { identifier ~ methodFormals }
   def operatorMethodHeader = rule { otherOp ~ oneMethodFormal } 
-  def prefixMethodHeader = rule { opt(ws) ~ token("prefix") ~ otherOp }  // forbid space after prefix?
+  def prefixMethodHeader = rule { opt(ws) ~ token("prefix") ~ otherOp ~ genericFormals }
   def assignmentMethodHeader = rule { identifier ~ assign ~ oneMethodFormal }
-  def accessingMethodHeader = rule { lrBrack ~ genericFormals ~ methodFormals }
-  def accessingAssignmentMethodHeader = rule { lrBrack ~ assign ~ genericFormals ~ methodFormals }
 
   def methodReturnType = rule { opt(arrow ~ nonEmptyTypeExpression )  } 
 
@@ -210,7 +208,7 @@ class exports {
   def tupleLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
 
   def typeLiteral = rule { typeId ~ opt(ws) ~ nakedTypeLiteral }
-
+  
   //kernan
   def nakedTypeLiteral = rule { lBrace ~ opt(ws) ~ repdel(methodHeader ~ methodReturnType, (semicolon | whereClause)) ~ opt(ws) ~ rBrace }
 
@@ -232,7 +230,6 @@ class exports {
   def rBrace = symbol "\}"
   def lBrack = symbol "["
   def rBrack = symbol "]"
-  def lrBrack = symbol "[]"
   def arrow = symbol "->"
   def dot = symbol "."
   def assign = symbol ":="

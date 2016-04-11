@@ -86,37 +86,37 @@ testProgramOn "method foo:=(a : T, b : T, c : T) -> T \{a; b; c\}" wrongly "013f
 testProgramOn "method foo:=(a, b : T, c) -> F \{a; b; c\}" wrongly "013f9"
 
 
-testProgramOn "method [](x) \{a; b; c\}" correctly "013d1"
-testProgramOn "method [](x, y, z) \{a; b; c\}" correctly "013d1"
+testProgramOn "method [](x) \{a; b; c\}" wrongly "013d1" //was correct
+testProgramOn "method [](x, y, z) \{a; b; c\}" wrongly "013d1" //was correct
 testProgramOn "method []=(x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method [=](x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method []foo(x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method foo[](x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method [][]***&%&(x) \{a; b; c\}" wrongly "013d1"
-testProgramOn "method [](x: T) \{a; b; c\}" correctly "013d2"
-testProgramOn "method [](x) -> T \{a; b; c\}" correctly "013d3"
-testProgramOn "method [](x : T) -> T \{a; b; c\}" correctly "013d3"
+testProgramOn "method [](x: T) \{a; b; c\}" wrongly "013d2"  //was correct
+testProgramOn "method [](x) -> T \{a; b; c\}" wrongly "013d3"  //was correct
+testProgramOn "method [](x : T) -> T \{a; b; c\}" wrongly "013d3" //was correctly
 testProgramOn "method [] -> T \{a; b; c\}" wrongly "013d5"
 testProgramOn "method [](x,y) T \{a; b; c\}" wrongly "013d6"
-testProgramOn "method [](x : T, y : T) -> T \{a; b; c\}" correctly "013d7"
+testProgramOn "method [](x : T, y : T) -> T \{a; b; c\}" wrongly "013d7" //was correct
 testProgramOn "method [](x) [](y) -> T \{a; b; c\}" wrongly "013d8"
 
 
-testProgramOn "method []:=(x) \{a; b; c\}" correctly "013d1"
-testProgramOn "method []:=(x, y, z) \{a; b; c\}" correctly "013d1"
-testProgramOn "method [] :=(x) \{a; b; c\}" correctly "013d1"
-testProgramOn "method [] :=(x, y, z) \{a; b; c\}" correctly "013d1"
+testProgramOn "method []:=(x) \{a; b; c\}" wrongly "013d1" 
+testProgramOn "method []:=(x, y, z) \{a; b; c\}" wrongly "013d1" //was correct
+testProgramOn "method [] :=(x) \{a; b; c\}" wrongly "013d1" //was correct
+testProgramOn "method [] :=(x, y, z) \{a; b; c\}" wrongly "013d1" //was correct
 testProgramOn "method []:==(x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method [=](x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method []:=foo(x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method foo[]:=(x) \{a; b; c\}" wrongly "013d1"
 testProgramOn "method []:=[]:=***&%&(x) \{a; b; c\}" wrongly "013d1"
-testProgramOn "method []:=(x: T) \{a; b; c\}" correctly "013d2"
-testProgramOn "method []:=(x) -> T \{a; b; c\}" correctly "013d3"
-testProgramOn "method []:=(x : T) -> T \{a; b; c\}" correctly "013d3"
+testProgramOn "method []:=(x: T) \{a; b; c\}" wrongly "013d2" //was correct
+testProgramOn "method []:=(x) -> T \{a; b; c\}" wrongly "013d3" //was correct
+testProgramOn "method []:=(x : T) -> T \{a; b; c\}" wrongly "013d3" //was correct
 testProgramOn "method []:= -> T \{a; b; c\}" wrongly "013d5"
 testProgramOn "method []:=(x,y) T \{a; b; c\}" wrongly "013d6"
-testProgramOn "method []:=(x : T, y : T) -> T \{a; b; c\}" correctly "013d7"
+testProgramOn "method []:=(x : T, y : T) -> T \{a; b; c\}" wrongly "013d7" //was correct
 testProgramOn "method []:=(x) []:=(y) -> T \{a; b; c\}" wrongly "013d8"
 
 //evil list syntax

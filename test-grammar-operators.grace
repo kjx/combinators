@@ -6,7 +6,6 @@ inherits grammar.exports
 
 //test expressions with operators, vars, defs...
 
-
 testProgramOn "1*2+3" correctly "010"
 testProgramOn "1+2*3" correctly "010"
 testProgramOn "1+2-3+4" correctly "010"
@@ -21,7 +20,6 @@ testProgramOn "1 ?? 2 !! 3 $$ 4" wrongly "010"
 testProgramOn "a * (* (* (* (* (* (* (* (* b))))))))" correctly "008k"
 testProgramOn "a * * * * * * * * * b" wrongly "008k"
 
-
 testProgramOn "1*2+3" correctly "010a"
 testProgramOn "1+2*3" correctly "010a"
 testProgramOn "1 @ 2+3" correctly "010a"
@@ -30,7 +28,6 @@ testProgramOn "1 @ 2*3" correctly "010a"
 testProgramOn "1 * 2 @ 3" correctly "010a"
 testProgramOn "1 @ 2*3 + 4" correctly "010a"
 testProgramOn "1 * 2 @ 3 + 4" correctly "010a"
-
 
 testProgramOn "foo[10]" correctly "010"
 testProgramOn "foo[10,20]" correctly "010"
@@ -108,3 +105,4 @@ test (codeSequence) on "var x := 4; foo; def b = 4; bar; baz" correctly "013a"
 test (codeSequence) on "var x := 4; foo; 3+4; def b = 4; bar; 1+2; baz;" correctly "013a"
 
 testProgramOn "print (true && \{truemeth\} && \{true\})" correctly "Eelco1"
+
