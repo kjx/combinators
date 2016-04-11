@@ -25,6 +25,7 @@ class exports {
 //   class tokenParser(tken) { inherits tokenParser(tken) }
 //   class whiteSpaceParser { inherits whiteSpaceParser }
 //   class characterSetParser(charSet) { inherits characterSetParser(charSet) }
+//   class characterSetNotParser(charSet) { inherits characterSetParser(charSet) }
 //   class graceIdentifierParser { inherits graceIdentifierParser }
 //   class digitStringParser { inherits digitStringParser }
 //   class sequentialParser(left, right) { inherits sequentialParser(left, right) }
@@ -227,7 +228,7 @@ class exports {
   }
 
 
-  // parser single character from set of acceptable characters (given as a string)
+  // parse single character from set of acceptable characters (given as a string)
   class characterSetParser(charSet) {
    inherits abstractParser
    def brand = "characterSetParser"
@@ -242,6 +243,21 @@ class exports {
 
      return parseFailure(
           "expected \"{charSet}\" got {current} at {in.position}")
+   }
+  }
+
+  class characterSetNotParser(charSet) {
+   inherits abstractParser
+   def brand = "characterSetNotParser"
+
+   method parse(in) {
+     def current = in.take(1) 
+
+     for (charSet) do { c -> 
+        if (c == current) then {
+          return parseFailure("expected NOT \"{charSet}\" got {current} at {in.position}") }
+       }
+     return parseSuccess(in.rest(1), current ) 
    }
   }
 
@@ -267,7 +283,7 @@ class exports {
 
      // print "char: <{char}>  current.atEnd <{current.atEnd}>"
 
-     while {(!current.atEnd).andAlso {isletter(char) || isdigit(char) || (char == "'")}}
+     while {(!current.atEnd).andAlso {isletter(char) || isdigit(char) || (char == "'") || (char == "_")}}
        do {
           id := id ++ char
           current := current.rest(1)

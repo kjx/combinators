@@ -388,5 +388,7 @@ test (guard(dsp,{ s -> false})) on "1234" wrongly "guard f"
 test (guard(dsp, { s -> s == "1234" } )) on "1234" correctly "guard 1234"
 test (guard(dsp, { s -> s == "1234" } )) on "1235" wrongly "guard f"
 
+test (characterSetNotParser("\n")) on "\nabc" wrongly "cSNP"
+test (characterSetNotParser("\n")) on "abc" correctly "cSNP"
  
 print "------: done combinator tests"

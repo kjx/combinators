@@ -11,16 +11,20 @@ class exports {
   def codeSequence = rule { repdel((declaration | statement | empty), semicolon) }
   def innerCodeSequence = rule { repdel((innerDeclaration | statement | empty), semicolon) }
 
+  def moduleHeader = rule { rep(hashLine) ~ rep(importStatement | reuseClause) } 
+  def hashLine = rule { (symbol "#") ~ rep(anyChar | space) ~ (newLine | end) }
+  def importStatement = rule { importId ~ stringLiteral ~ asId ~ identifier ~ semicolon } 
+ 
   // def comment = 
 
   // declarations
 
   def declaration = rule {
-        varDeclaration | defDeclaration | classDeclaration |
+        varDeclaration | defDeclaration | classOrTraitDeclaration |
           typeDeclaration | methodDeclaration }
 
   def innerDeclaration = rule { 
-         varDeclaration | defDeclaration | classDeclaration | typeDeclaration }
+         varDeclaration | defDeclaration | classOrTraitDeclaration | typeDeclaration }
 
   def varDeclaration = rule { 
           varId ~ identifier ~  opt(colon ~ typeExpression) ~ opt(assign ~ expression) }
@@ -31,9 +35,10 @@ class exports {
   def methodDeclaration = rule {
           methodId ~ methodHeader ~ methodReturnType ~ whereClause ~
                              lBrace ~ innerCodeSequence ~ rBrace }
-  def classDeclaration = rule {
-          classId ~ classHeader ~ methodReturnType ~ whereClause ~ 
-                                 lBrace ~ inheritClause ~ codeSequence ~ rBrace }
+
+  def classOrTraitDeclaration = rule {
+          (classId | traitId) ~ classHeader ~ methodReturnType ~ whereClause ~ 
+                                 lBrace ~ rep(reuseClause) ~ codeSequence ~ rBrace }
 
   //def oldClassDeclaration = rule { classId ~ identifier ~ lBrace ~ 
   //                             opt(genericFormals ~ blockFormals ~ arrow) ~ codeSequence ~ rBrace }
@@ -42,8 +47,11 @@ class exports {
   //warning: order here is significant!
   def methodHeader = rule { accessingAssignmentMethodHeader | accessingMethodHeader | assignmentMethodHeader | methodWithArgsHeader | unaryMethodHeader | operatorMethodHeader | prefixMethodHeader  } 
 
-  def classHeader = rule { methodWithArgsHeader | unaryMethodHeader }
-  def inheritClause = rule { opt( inheritId ~ expression ~ semicolon ) }  
+  def classHeader = methodHeader    // rule { methodWithArgsHeader | unaryMethodHeader }
+  def reuseClause = rule { (inheritId | useId) ~ expression ~ semicolon ~ rep(reuseModifiers) }  
+  def reuseModifiers = rule { excludeClause | aliasClause } 
+  def excludeClause = rule { excludeId ~ methodHeader ~ semicolon }
+  def aliasClause = rule { aliasId ~ methodHeader ~ equals ~ methodHeader ~ semicolon }
 
   def unaryMethodHeader = rule { identifier ~ genericFormals } 
   def methodWithArgsHeader = rule { firstArgumentHeader ~ repsep(argumentHeader,opt(ws)) }
@@ -196,7 +204,7 @@ class exports {
                                    ~ innerCodeSequence ~ rBrace }
   def selfLiteral = symbol "self" 
   def numberLiteral = trim(digitStringParser)
-  def objectLiteral = rule { objectId ~ lBrace ~ inheritClause ~ codeSequence ~ rBrace }
+  def objectLiteral = rule { objectId ~ lBrace ~ rep(reuseClause) ~ codeSequence ~ rBrace }
 
   //these are *not* in the spec - EELCO 
   def tupleLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
@@ -210,7 +218,12 @@ class exports {
   def backslash = token "\\"    // doesn't belong here, doesn't work if left below!
   def doubleQuote = token "\""
   def space = token " " 
+
   def semicolon = rule { (symbol(";") ~ opt(newLine)) | (opt(ws) ~ lineBreak("left" | "same") ~ opt(ws)) }
+
+  // broken
+  // def semicolon = rule { (symbol(";") ~ opt(newLine)) | (opt(ws) ~ lineBreak("left" | "same") ~ opt(ws)) | end }
+
   def colon = rule {both(symbol ":", not(assign))}
   def newLine = symbol "\n" 
   def lParen = symbol "("

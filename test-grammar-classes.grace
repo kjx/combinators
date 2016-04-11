@@ -32,6 +32,27 @@ testProgramOn "class Foo<A, B>(a : A, b : B) \{ inherit Foo(2) new(4); a; b; c; 
 testProgramOn "class Foo \{ inherit; a; b; c \}" wrongly "015ih"
 
 
+test (aliasClause) on "alias x;" wrongly "alias1"
+test (excludeClause) on "exclude x = y;" wrongly "alias1"
+test (aliasClause) on "alias x = y;" correctly "alias1"
+test (aliasClause) on "alias x(a) = y(a);" correctly "alias2"
+test (aliasClause) on "alias x(a) x(a) = y(a) y(a);" correctly "alias3"
+test (aliasClause) on "alias x(_) x(_) = y(_) y(_);" correctly "alias4"
+
+testProgramOn "trait Foo \{ \}" correctly "trait1"
+testProgramOn "trait Foo \{  a; b; c; \}" correctly "trait2"
+testProgramOn "trait Foo \{ inherit Bar; a; b; c; \}" correctly "trait2"
+testProgramOn "trait Foo \{ use Bar; a; b; c; \}" correctly "trait3"
+testProgramOn "trait Foo \{ inherit Bar; use Baz; a; b; c; \}" correctly "trait4"
+testProgramOn "trait Foo \{ use Bar; use Baz; a; b; c; \}" correctly "trait5"
+testProgramOn "trait Foo \{ use Bar; exclude a;  ; a; b; c; \}" correctly "trait6"
+testProgramOn "trait Foo \{use Bar; exclude a; exclude b; a; b; c; \}" correctly "trait7"
+testProgramOn "trait Foo \{use Bar; alias a = oldXXXXXa; \}" correctly "trait9"
+testProgramOn "trait Foo \{use Bar; alias a(XXXXX) = oldXXXXXa(XXXXX); \}" correctly "trait10"
+testProgramOn "trait Foo \{use Bar; alias a = old_a; a; b; c; \}" correctly "trait11"
+testProgramOn "trait Foo \{use Bar; alias a(_) = oldXXXXXa(_); a; b; c; \}" correctly "trait12"
+
+
 
 
 

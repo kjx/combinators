@@ -53,6 +53,7 @@ test (codeSequence ~ end) on "foo(x)\n  bar(x)\n  baz(x)" correctly "X13a14"
 test (codeSequence ~ end) on "var x := 4\nfoo\ndef b = 4\nbar\nbaz" correctly "013a2z"
 
 
+
 test {symbol("print").parse(t001).succeeded}
     expecting(true)
     comment "symbol print"    
@@ -74,6 +75,7 @@ test {rep(stringChar).parse(t001c).next.position}
 test {stringLiteral.parse(t001s).succeeded}
     expecting(true)
     comment "stringLiteral"    
+
 test {program.parse(t001).succeeded}
      expecting(true)
      comment "001-print"
@@ -113,6 +115,7 @@ testProgramOn "0x1234" correctly "n1"
 testProgramOn "2xDEADBEEF" correctly "n1"
 testProgramOn "4xDEADBEEF" correctly "n1"
 
+//can't redefine reserveed words
 
 method circumfix[ *x ] { x }
 
@@ -123,3 +126,35 @@ def reservedIDs = [ "class", "def", "dialect", "exclude", "import", "inherit", "
 for (reservedIDs) do { id -> 
   testProgramOn ("method " ++ id ++ " \{\}") wrongly "id1"
 }
+
+
+// module headers 
+print "mdoule headers"
+test (hashLine) on "" wrongly "hl0"
+test (hashLine) on "#" correctly "hl1"
+test (hashLine) on "#\n" correctly "hl1"
+test (hashLine) on "#\n#\n" correctly "hl2"
+test (hashLine) on "#a bc b" correctly "hl3"
+test (hashLine) on "#!/bin/grace\n#\n#\n" correctly "hl4"
+
+test (rep(hashLine)) on "" correctly "hl5"
+
+test (importStatement) on "import \"foo\" as nickname;" correctly "mhi3"
+test (reuseClause) on "inherit narf" wrongly "mhi31"
+test (reuseClause) on "inherit narf;" correctly "mhi32"
+
+test (importStatement) on "" wrongly "mhi4"
+test (reuseClause) on "" wrongly "mhi5"
+
+test (rep(importStatement | reuseClause)) on "import \"foo\" as nickname;" correctly "mhi3"
+test (rep(importStatement | reuseClause)) on "inherit narf" correctly "mhi3"
+
+test (moduleHeader) on "#!/bin/grace\n" correctly "mh1"
+test (moduleHeader ~ end) on "#!/bin/grace\n" correctly "mh1"
+test (moduleHeader ~ end) on "#\n#\n#\n" correctly "mh2"
+test (moduleHeader ~ end) on "import \"foo\" as nickname;" correctly "mh3"
+test (moduleHeader ~ end) on "import \"foo\" as nickname\nimport \"foo\" as nickname;" correctly "mh4" 
+test (moduleHeader ~ end) on "inherit bar;" correctly "mh5"
+test (moduleHeader ~ end) on "import \"foo\" as nickname\ninherit bar\n" correctly "mh6" 
+test (moduleHeader) on "" correctly "mh0"
+
