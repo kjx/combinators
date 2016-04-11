@@ -119,10 +119,14 @@ testProgramOn "method []:=(x,y) T \{a; b; c\}" wrongly "013d6"
 testProgramOn "method []:=(x : T, y : T) -> T \{a; b; c\}" wrongly "013d7" //was correct
 testProgramOn "method []:=(x) []:=(y) -> T \{a; b; c\}" wrongly "013d8"
 
-//evil list syntax
+//evil list syntax (not quite sure why it ended up here)
 testProgramOn "[]" correctly "014a"
 testProgramOn "[1,2,3]" correctly "014b"
 testProgramOn "[ \"a\", \"a\", \"a\", 1]" correctly "014c"
 testProgramOn "[ \"a\", \"a\", \"a\", 1" wrongly "014d"
 testProgramOn "[ \"a\" \"a\" \"a\" 1]" wrongly "014e"
-testProgramOn "[][3][4][5]" correctly "014f"
+test (lineupLiteral ~ semicolon) on "[][3][4][5];" wrongly "014f0" //was correct
+test (lineupLiteral ~ semicolon) on "[];" correctly "014f1" //was correct
+test (program ~ semicolon) on "[][3][4][5];" wrongly "014f2" //was correct
+test (program ~ end) on "[][3][4][5];" wrongly "014f3" //was correct
+testProgramOn "[][3][4][5]" wrongly "014f4" //was correct

@@ -144,11 +144,7 @@ class exports {
 
   def selectorExpression = rule { primaryExpression ~ rep(selector) }
 
-  def selector = rule { 
-                        (dot ~ unaryRequest) | 
-                          (dot ~ requestWithArgs) |
-                          (lBrack ~ rep1sep(expression,comma) ~ rBrack)  
-                      }
+  def selector = rule { (dot ~ unaryRequest) | (dot ~ requestWithArgs) }
 
   def operatorChar = characterSetParser("!?@#$%^&|~=+-*/><:.") // had to be moved up
 
@@ -194,7 +190,7 @@ class exports {
   // "literals"
 
   def literal = rule { stringLiteral | selfLiteral | blockLiteral | numberLiteral | 
-                           objectLiteral | tupleLiteral | typeLiteral } 
+                           objectLiteral | lineupLiteral | typeLiteral } 
 
   def stringLiteral = rule { opt(ws) ~ doubleQuote ~ rep( stringChar ) ~ doubleQuote ~ opt(ws) } 
   def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space}
@@ -205,7 +201,7 @@ class exports {
   def objectLiteral = rule { objectId ~ lBrace ~ rep(reuseClause) ~ codeSequence ~ rBrace }
 
   //these are *not* in the spec - EELCO 
-  def tupleLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
+  def lineupLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
 
   def typeLiteral = rule { typeId ~ opt(ws) ~ nakedTypeLiteral }
   

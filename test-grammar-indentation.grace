@@ -32,8 +32,8 @@ test (ws ~ (token "11") ~ semicolon ~ (symbol("22")) ~ semicolon ~ (symbol("no")
 
 
 
-testProgramOn "call(params[1].value)" correctly "100z1"
-test (expression ~ end) on "call(params[1].value)" correctly "100z1"
+testProgramOn "call(params[1].value)" wrongly "100z1"
+test (expression ~ end) on "call(params[1].value)" wrongly "100z1"
 
 
 testProgramOn "method x1 \{foo(3)\n    bar(2)\n    bar(2)\n    foo(4)\n\}" correctly "101a1"
