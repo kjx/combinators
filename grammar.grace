@@ -19,9 +19,7 @@ class exports {
 
   // declarations
 
-  def declaration = rule {
-        varDeclaration | defDeclaration | classOrTraitDeclaration |
-          typeDeclaration | methodDeclaration }
+  def declaration = rule { varDeclaration | defDeclaration | classOrTraitDeclaration | typeDeclaration | methodDeclaration }
 
   def innerDeclaration = rule { varDeclaration | defDeclaration | classOrTraitDeclaration | typeDeclaration }
 
