@@ -23,22 +23,15 @@ class exports {
         varDeclaration | defDeclaration | classOrTraitDeclaration |
           typeDeclaration | methodDeclaration }
 
-  def innerDeclaration = rule { 
-         varDeclaration | defDeclaration | classOrTraitDeclaration | typeDeclaration }
+  def innerDeclaration = rule { varDeclaration | defDeclaration | classOrTraitDeclaration | typeDeclaration }
 
-  def varDeclaration = rule { 
-          varId ~ identifier ~  opt(colon ~ typeExpression) ~ opt(assign ~ expression) }
+  def varDeclaration = rule { varId ~ identifier ~  opt(colon ~ typeExpression) ~ opt(assign ~ expression) }
 
-  def defDeclaration = rule { 
-          defId ~ identifier ~  opt(colon ~ typeExpression) ~ equals ~ expression }
+  def defDeclaration = rule { defId ~ identifier ~  opt(colon ~ typeExpression) ~ equals ~ expression }
 
-  def methodDeclaration = rule {
-          methodId ~ methodHeader ~ methodReturnType ~ whereClause ~
-                             lBrace ~ innerCodeSequence ~ rBrace }
+  def methodDeclaration = rule { methodId ~ methodHeader ~ methodReturnType ~ whereClause ~ lBrace ~ innerCodeSequence ~ rBrace }
 
-  def classOrTraitDeclaration = rule {
-          (classId | traitId) ~ classHeader ~ methodReturnType ~ whereClause ~ 
-                                 lBrace ~ rep(reuseClause) ~ codeSequence ~ rBrace }
+  def classOrTraitDeclaration = rule { (classId | traitId) ~ classHeader ~ methodReturnType ~ whereClause ~ lBrace ~ rep(reuseClause) ~ codeSequence ~ rBrace }
 
   //def oldClassDeclaration = rule { classId ~ identifier ~ lBrace ~ 
   //                             opt(genericFormals ~ blockFormals ~ arrow) ~ codeSequence ~ rBrace }
@@ -75,9 +68,7 @@ class exports {
 
   def matchingBlockTail = rule { lParen ~ rep1sep(matchBinding, comma)  ~ rParen }
 
-  def typeDeclaration = rule {
-          typeId ~ identifier ~ genericFormals ~
-              equals ~ nonEmptyTypeExpression ~ (semicolon | whereClause)}
+  def typeDeclaration = rule { typeId ~ identifier ~ genericFormals ~ equals ~ nonEmptyTypeExpression ~ (semicolon | whereClause)}
 
   //these are the things that work - 24 July with EELCO
   def typeExpression = rule { (opt(ws) ~ typeOpExpression ~ opt(ws)) | opt(ws) }
@@ -189,14 +180,11 @@ class exports {
 
   // "literals"
 
-  def literal = rule { stringLiteral | selfLiteral | blockLiteral | numberLiteral | 
-                           objectLiteral | lineupLiteral | typeLiteral } 
+  def literal = rule { stringLiteral | selfLiteral | blockLiteral | numberLiteral | objectLiteral | lineupLiteral | typeLiteral } 
 
   def stringLiteral = rule { opt(ws) ~ doubleQuote ~ rep( stringChar ) ~ doubleQuote ~ opt(ws) } 
   def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space}
-  def blockLiteral = rule { lBrace ~ opt(ws) ~ opt(genericFormals ~ 
-                                   opt(matchBinding) ~ blockFormals ~ opt(ws) ~ arrow) 
-                                   ~ innerCodeSequence ~ rBrace }
+  def blockLiteral = rule { lBrace ~ opt(ws) ~ opt(genericFormals ~ opt(matchBinding) ~ blockFormals ~ opt(ws) ~ arrow) ~ innerCodeSequence ~ rBrace }
   def selfLiteral = symbol "self" 
   def numberLiteral = trim(digitStringParser)
   def objectLiteral = rule { objectId ~ lBrace ~ rep(reuseClause) ~ codeSequence ~ rBrace }
@@ -277,7 +265,9 @@ class exports {
   def whereId = symbol "where" 
 
   //kernan
-  def reservedIdentifier = rule {selfLiteral | aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId |  interfaceId |  isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId | traitId |  typeId |  useId |  varId |  whereId}
+  def reservedIdentifier = rule {selfLiteral | aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId | isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId | traitId |  typeId |  useId |  varId |  whereId}
+
+  //oops deleted interfaceId
 
   def reservedOp = rule {assign | equals | dot | arrow | colon | semicolon}  // this is not quite right
 
