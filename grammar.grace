@@ -181,7 +181,7 @@ class exports {
   def literal = rule { stringLiteral | selfLiteral | blockLiteral | numberLiteral | objectLiteral | lineupLiteral | typeLiteral } 
 
   def stringLiteral = rule { opt(ws) ~ doubleQuote ~ rep( stringChar ) ~ doubleQuote ~ opt(ws) } 
-  def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space}
+  def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space }
   def blockLiteral = rule { lBrace ~ opt(ws) ~ opt(genericFormals ~ opt(matchBinding) ~ blockFormals ~ opt(ws) ~ arrow) ~ innerCodeSequence ~ rBrace }
   def selfLiteral = symbol "self" 
   def numberLiteral = trim(digitStringParser)
