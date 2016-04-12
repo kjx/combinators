@@ -119,8 +119,8 @@ testProgramOn "3+4.i" correctly "015z"
 
 testProgramOn "b(t(r(o)), not(re))" correctly "008x1" 
 testProgramOn "\{ rep1(dot ~ unaryRequest) ~ rep(opRequestXXX) ~ opt(dot ~ keywordRequest) \}" correctly "008x2"
-testProgramOn " if (endPosition > string.size) then \{endPosition := string.size\}" correctly "008x2"
-testProgramOn "  if ((n + position) <= (string.size + 1)) then \{return stringInputStream(string, position + n)\}" correctly "008x4"
+testProgramOn "if (endPosition > string.size) then \{endPosition := string.size\}" correctly "008x2"
+testProgramOn "if ((n + position) <= (string.size + 1)) then \{return stringInputStream(string, position + n)\}" correctly "008x4"
 testProgramOn "return (((c >= \"A\") && (c <= \"Z\"))          | ((c >= \"a\") && (c <= \"z\")))" correctly "008x5"
 testProgramOn "\{drop(opt(ws)) ~ p ~ drop(opt(ws))\}" correctly "008x6" // OK ok JS, crashes on C
 testProgramOn "drop(opt(ws)) ~ doubleQuote ~ rep( stringChar ) ~ doubleQuote " correctly "008x7"

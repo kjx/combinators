@@ -67,8 +67,11 @@ class exports {
   def oneMethodFormal = rule { lParen ~ identifier ~ opt(colon ~ typeExpression) ~ rParen}
   def blockFormals = rule { repsep( identifier ~ opt(colon ~ typeExpression), comma) }
 
-  def matchBinding = rule{ (identifier | literal | parenExpression) ~
-                             opt(colon ~ nonEmptyTypeExpression ~ opt(matchingBlockTail)) }
+  def matchBinding = rule { (stringLiteral | numberLiteral | (lParen ~ identifier ~ rParen)) ~ opt(colon ~ nonEmptyTypeExpression) }
+
+
+  def matchBindingOLD = rule{ (literal | parenExpression | identifier)
+                               ~ opt(colon ~ nonEmptyTypeExpression ~ opt(matchingBlockTail)) }
 
   def matchingBlockTail = rule { lParen ~ rep1sep(matchBinding, comma)  ~ rParen }
 
@@ -174,7 +177,7 @@ class exports {
   def listOfOuters = rule { rep1sep(outerId, dot) }
 
   // "generics" 
-  def genericActuals = rule { opt(lGeneric ~ opt(ws) ~ rep1sep(opt(ws) ~ typeExpression ~ opt(ws),opt(ws) ~ comma ~ opt(ws)) ~ opt(ws) ~ rGeneric) }
+  def genericActuals = rule { opt(lGeneric ~ opt(ws) ~ rep1sep(opt(ws) ~ typeExpression ~ opt(ws), opt(ws) ~ comma ~ opt(ws)) ~ opt(ws) ~ rGeneric) }
 
   def genericFormals = rule {  opt(lGeneric ~ rep1sep(identifier, comma) ~ rGeneric) }
 
@@ -192,7 +195,7 @@ class exports {
   def stringLiteral = rule { opt(ws) ~ doubleQuote ~ rep( stringChar ) ~ doubleQuote ~ opt(ws) } 
   def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space}
   def blockLiteral = rule { lBrace ~ opt(ws) ~ opt(genericFormals ~ 
-                                   (blockFormals | matchBinding) ~ opt(ws) ~ arrow) 
+                                   opt(matchBinding) ~ blockFormals ~ opt(ws) ~ arrow) 
                                    ~ innerCodeSequence ~ rBrace }
   def selfLiteral = symbol "self" 
   def numberLiteral = trim(digitStringParser)

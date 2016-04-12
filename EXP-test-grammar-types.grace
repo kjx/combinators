@@ -78,16 +78,13 @@ start
 .
 .
 .
-
-FAILED: 016td3 type A<B,C> = B & C;
-
-FAILED: 016td4 type A<B> = B | Noo | Bar;
 .
 .
 .
 .
-
-FAILED: 016td9 type GenericPathType<A,X> = a.b.C<A,X>;
+.
+.
+.
 .
 .
 .

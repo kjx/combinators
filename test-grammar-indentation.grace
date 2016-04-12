@@ -13,9 +13,9 @@ testProgramOn "method foo \{a;\n b;\n c;\n\}" correctly "X17c1"
 testProgramOn "     method foo \{a;\n b;\n c;\n\}" wrongly "X17c2"
 testProgramOn "method foo \{\n     a;\n     b;\n     c;\n\}" correctly "X17c3"
 
-testProgramOn "method foo<T>(a) where T < Foo; \{a;\n b;\n c;\n\}" correctly "X17d1"
-testProgramOn "method foo<T>(a) where T < Foo; \{ a\n b\n c\n\}" wrongly "X17d2"      //hmm
-testProgramOn "method foo<T>(a) where T < Foo; \{\n a\n b\n c\n\}" correctly "X17d3" 
+testProgramOn "method foo[[T]](a) where T < Foo; \{a;\n b;\n c;\n\}" correctly "X17d1"
+testProgramOn "method foo[[T]](a) where T < Foo; \{ a\n b\n c\n\}" wrongly "X17d2"      //hmm
+testProgramOn "method foo[[T]](a) where T < Foo; \{\n a\n b\n c\n\}" correctly "X17d3" 
 
 //index          123 45678 90123
 //indent         111 22222 0000" 

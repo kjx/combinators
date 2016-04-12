@@ -105,6 +105,39 @@ test {program.parse(t001b).succeeded}
 testProgramOn "0" correctly "99z1"
 testProgramOn "\"NOT FAILED AND DONE\"" correctly "99z2"
 
+
+
+//to base
+test (lBrack) on "[" correctly "lb1"
+test (lBrack) on "[   " correctly "lb2"
+test (lBrack) on " [ " wrongly "lb3"
+test (lBrack) on "[[" wrongly "lb4"
+test (lBrack) on " [[" wrongly "lb5"
+test (lBrack) on "[[  " wrongly "lb6"
+
+test (lGeneric) on "[" wrongly "lg1"
+test (lGeneric) on "[   " wrongly "lg2"
+test (lGeneric) on " [ " wrongly "lg3"
+test (lGeneric) on "[[" correctly "lg4"
+test (lGeneric) on " [[" wrongly "lg5"
+test (lGeneric) on "[[  " correctly "lg6"
+
+
+test (rBrack) on "]" correctly "lb1"
+test (rBrack) on "]   " correctly "lb2"
+test (rBrack) on " ] " wrongly "lb3"
+test (rBrack) on "]]" wrongly "lb4"
+test (rBrack) on " ]]" wrongly "lb5"
+test (rBrack) on "]]  " wrongly "lb6"
+
+test (rGeneric) on "]" wrongly "lg1"
+test (rGeneric) on "]   " wrongly "lg2"
+test (rGeneric) on " ] " wrongly "lg3"
+test (rGeneric) on "]]" correctly "lg4"
+test (rGeneric) on " ]]" wrongly "lg5"
+test (rGeneric) on "]]  " correctly "lg6"
+
+
 testProgramOn "0x" wrongly "n1"
 testProgramOn "0x1234" correctly "n1"
 testProgramOn "2xDEADBEEF" correctly "n1"
@@ -157,4 +190,7 @@ test (moduleHeader ~ end) on "import \"foo\" as nickname\nimport \"foo\" as nick
 test (moduleHeader ~ end) on "inherit bar;" correctly "mh5"
 test (moduleHeader ~ end) on "import \"foo\" as nickname\ninherit bar\n" correctly "mh6" 
 test (moduleHeader) on "" correctly "mh0"
+
+
+
 

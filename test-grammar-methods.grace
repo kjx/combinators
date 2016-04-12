@@ -28,15 +28,15 @@ testProgramOn "method foo(a, b, c) \{a; b; c\}" correctly "013c7"
 testProgramOn "method foo(a, b, c) bar(d,e)\{a; b; c\}" correctly "013c7"
 testProgramOn "method foo(a : T, b : T, c : T) -> T \{a; b; c\}" correctly "013c8"
 testProgramOn "method foo(a, b : T, c) -> F \{a; b; c\}" correctly "013c9"
-testProgramOn "method foo<T>(a) \{a; b; c\}" correctly "013c"
-testProgramOn "method foo<TER,MIN,US>(a, b, c) \{a; b; c\}" correctly "013c2"
-testProgramOn "method foo<TXE>(a : T) \{a; b; c\}" correctly "013c3"
-testProgramOn "method foo<T,U,V>(a : T, b : T, c : T) -> T \{a; b; c\}" correctly "013c4"
-testProgramOn "method foo<T,U>(a : T, b : T, c : T) foo(a : T, b : T, c : T) -> T \{a; b; c\}" correctly "013c6"
-testProgramOn "method foo(a : T, b : T, c : T) foo<T,U>(a : T, b : T, c : T) -> T \{a; b; c\}" wrongly "013c6"
-testProgramOn "method foo<>(a : T, b : T, c : T) foo<T,U>(a : T, b : T, c : T) -> T \{a; b; c\}" wrongly "013c6"
-testProgramOn "method foo<>(a : T, b : T, c : T)  \{a; b; c\}" wrongly "013c6"
-testProgramOn "method foo<> \{a; b; c\}" wrongly "013c6"
+testProgramOn "method foo[[T]](a) \{a; b; c\}" correctly "013c"
+testProgramOn "method foo[[TER,MIN,US]](a, b, c) \{a; b; c\}" correctly "013c2"
+testProgramOn "method foo[[TXE]](a : T) \{a; b; c\}" correctly "013c3"
+testProgramOn "method foo[[T,U,V]](a : T, b : T, c : T) -> T \{a; b; c\}" correctly "013c4"
+testProgramOn "method foo[[T,U]](a : T, b : T, c : T) foo(a : T, b : T, c : T) -> T \{a; b; c\}" correctly "013c6"
+testProgramOn "method foo(a : T, b : T, c : T) foo[[T,U]](a : T, b : T, c : T) -> T \{a; b; c\}" wrongly "013c6"
+testProgramOn "method foo[[]](a : T, b : T, c : T) foo[[T,U]](a : T, b : T, c : T) -> T \{a; b; c\}" wrongly "013c6"
+testProgramOn "method foo[[]](a : T, b : T, c : T)  \{a; b; c\}" wrongly "013c6"
+testProgramOn "method foo[[]] \{a; b; c\}" wrongly "013c6"
 
 testProgramOn "method +(x) \{a; b; c\}" correctly "013d1"
 testProgramOn "method ==(x) \{a; b; c\}" correctly "013d1"
@@ -119,6 +119,73 @@ testProgramOn "method []:=(x,y) T \{a; b; c\}" wrongly "013d6"
 testProgramOn "method []:=(x : T, y : T) -> T \{a; b; c\}" wrongly "013d7" //was correct
 testProgramOn "method []:=(x) []:=(y) -> T \{a; b; c\}" wrongly "013d8"
 
+
+
+test (genericFormals) on "" correctly "gf1"
+test (genericFormals) on "[[T]]" correctly "gf2"
+test (genericFormals) on "  [[T]]  " correctly "gf3"
+test (lBrace ~ genericFormals) on "\{[[T]]  " correctly "gf4"
+test (lBrace ~ genericFormals) on "\{ [[T]]  " correctly "gf5"
+test (lBrace ~ genericFormals ~ rBrace) on "\{[[T]]\}" correctly "gf4"
+test (lBrace ~ genericFormals ~ rBrace) on "\{ [[T]]\}" correctly "gf5"
+
+test (lBrace ~ genericFormals ~ arrow ~ rBrace)
+  on "\{ -> \}"  correctly "013b0"
+test (lBrace ~ genericFormals ~ arrow ~ rBrace)
+  on "\{ [[A]] -> \}"  correctly "013b1"
+test (lBrace ~ genericFormals ~ arrow ~ innerCodeSequence ~ rBrace)
+  on "\{ -> foo\}"  correctly "013b2"
+test (lBrace ~ genericFormals ~ arrow ~ innerCodeSequence ~ rBrace)
+  on "\{ [[T]] -> foo\}"  correctly "013b3"
+
+testProgramOn "\{ [[T]] -> foo\}" correctly "013gb1"
+testProgramOn "\{ [[T]] x : A -> foo\}" correctly "013gb2"
+test (blockFormals ~ arrow) on  "x : A, y:B->" correctly "013gb3preX"
+test (blockFormals ~ arrow) on  "x : A, y:B ->" correctly "013gb3preY"
+test (blockFormals ~ arrow) on  "x : A, y:B->" correctly "013gb3preYNS"
+
+testProgramOn "\{ x : A, y:B -> foo\}" correctly "013gb3pre0"
+testProgramOn "\{ x:A, y:B -> foo\}" correctly "013gb3pre2"
+testProgramOn "\{x:A,y:B->foo\}" correctly "013gb3pre2NS"
+testProgramOn "\{x,y->foo\}" correctly "013gb3pre2NT"
+testProgramOn "\{x->foo\}" correctly "013gb3pre2NT1"
+testProgramOn "\{x:A,y:B->foo\}" correctly "013gb3pre1T"
+
+
+test (blockFormals ~ arrow) on  "   x : A, y:B ->" wrongly "013gb3preZ"
+test (opt(ws) ~ blockFormals ~ arrow) on  "   x : A, y:B ->" correctly "013gb3preA"
+
+test (genericFormals ~ blockFormals ~ arrow) on  "->" correctly "013gb3preB1"
+test (genericFormals ~ blockFormals ~ arrow) on  "[[A]]->" correctly "013gb3preB2"
+test (genericFormals ~ blockFormals ~ arrow) on  "a,b->" correctly "013gb3preB3"
+test (genericFormals ~ blockFormals ~ arrow) on  "a:X,b:Y->" correctly "013gb3preB3"
+
+test (genericFormals ~ blockFormals ~ arrow) on  "[[A,B]]->" correctly "013gb3preC1"
+test (genericFormals ~ blockFormals ~ arrow) on  "[[A]]a->" correctly "013gb3preC2"
+test (genericFormals ~ blockFormals ~ arrow) on  "[[A,B]]a,b->" correctly "013gb3preC3"
+test (genericFormals ~ blockFormals ~ arrow) on  "[[A,B]]a:X,b:Y->" correctly "013gb3preC3"
+
+
+
+
+testProgramOn "\{ [[T]] x : A, y:B -> foo\}" correctly "013gb3"
+testProgramOn "\{ [[T]] foo\}" wrongly "013gb4" 
+testProgramOn "\{ [[ T ]] foo \}" wrongly "013gb5" 
+testProgramOn "\{ [[T]] foo -> \}" correctly "013gb6" 
+
+
+
+testProgramOn "method foo:= [[T]] (x : T) \{ x \}" correctly "013g1"
+testProgramOn "method foo:= [[T,U]] (x : T) \{ x \}" correctly "013g2"
+testProgramOn "method foo:= [[T,U]] (x : T) -> T \{ x \}" correctly "013g3"
+testProgramOn "method - [[T]] (x : T) -> T \{ x \}" correctly "O13g4"
+testProgramOn "method prefix- [[T]] -> T \{ x \}" correctly "O13g5"
+testProgramOn "method prefix- [[T]] \{ x \}" correctly "O13g6"
+
+
+
+
+
 //evil list syntax (not quite sure why it ended up here)
 testProgramOn "[]" correctly "014a"
 testProgramOn "[1,2,3]" correctly "014b"
@@ -130,3 +197,4 @@ test (lineupLiteral ~ semicolon) on "[];" correctly "014f1" //was correct
 test (program ~ semicolon) on "[][3][4][5];" wrongly "014f2" //was correct
 test (program ~ end) on "[][3][4][5];" wrongly "014f3" //was correct
 testProgramOn "[][3][4][5]" wrongly "014f4" //was correct
+

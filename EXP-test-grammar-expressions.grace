@@ -109,10 +109,8 @@ start
 .
 .
 .
-
-FAILED: 008x2  if (endPosition > string.size) then {endPosition := string.size}
-
-FAILED: 008x4   if ((n + position) <= (string.size + 1)) then {return stringInputStream(string, position + n)}
+.
+.
 .
 .
 .
