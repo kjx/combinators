@@ -57,9 +57,9 @@ class exports {
   def methodWithArgsHeader = rule { firstArgumentHeader ~ repsep(argumentHeader,opt(ws)) }
   def firstArgumentHeader = rule { identifier ~ genericFormals ~ methodFormals }
   def argumentHeader = rule { identifier ~ methodFormals }
-  def operatorMethodHeader = rule { otherOp ~ oneMethodFormal } 
+  def operatorMethodHeader = rule { otherOp ~ genericFormals ~ oneMethodFormal } 
   def prefixMethodHeader = rule { opt(ws) ~ token("prefix") ~ otherOp ~ genericFormals }
-  def assignmentMethodHeader = rule { identifier ~ assign ~ oneMethodFormal }
+  def assignmentMethodHeader = rule { identifier ~ assign ~ genericFormals ~ oneMethodFormal }
 
   def methodReturnType = rule { opt(arrow ~ nonEmptyTypeExpression )  } 
 
@@ -174,12 +174,9 @@ class exports {
   def listOfOuters = rule { rep1sep(outerId, dot) }
 
   // "generics" 
-  def genericActuals = rule { 
-                              opt(lGeneric ~ opt(ws)
-                               ~ rep1sep(opt(ws) ~ typeExpression ~ opt(ws),opt(ws) ~ comma ~ opt(ws))
-                               ~ opt(ws) ~ rGeneric) }
+  def genericActuals = rule { opt(lGeneric ~ opt(ws) ~ rep1sep(opt(ws) ~ typeExpression ~ opt(ws),opt(ws) ~ comma ~ opt(ws)) ~ opt(ws) ~ rGeneric) }
 
-  def genericFormals = rule { opt(lGeneric ~  rep1sep(identifier, comma)  ~ rGeneric) }
+  def genericFormals = rule {  opt(lGeneric ~ rep1sep(identifier, comma) ~ rGeneric) }
 
   def whereClause = rule { repdel(whereId ~ typePredicate, semicolon) }
   def typePredicate = rule { expression }
@@ -194,7 +191,8 @@ class exports {
 
   def stringLiteral = rule { opt(ws) ~ doubleQuote ~ rep( stringChar ) ~ doubleQuote ~ opt(ws) } 
   def stringChar = rule { (drop(backslash) ~ escapeChar) | anyChar | space}
-  def blockLiteral = rule { lBrace ~ opt( (matchBinding | blockFormals) ~ arrow) 
+  def blockLiteral = rule { lBrace ~ opt(ws) ~ opt(genericFormals ~ 
+                                   (blockFormals | matchBinding) ~ opt(ws) ~ arrow) 
                                    ~ innerCodeSequence ~ rBrace }
   def selfLiteral = symbol "self" 
   def numberLiteral = trim(digitStringParser)
@@ -224,15 +222,15 @@ class exports {
   def rParen = symbol ")" 
   def lBrace = symbol "\{"
   def rBrace = symbol "\}"
-  def lBrack = symbol "["
-  def rBrack = symbol "]"
+  def lBrack = rule {both(symbol "[", not(lGeneric))}
+  def rBrack = rule {both(symbol "]", not(rGeneric))}
   def arrow = symbol "->"
   def dot = symbol "."
   def assign = symbol ":="
   def equals = symbol "="
 
-  def lGeneric = token "<"
-  def rGeneric = token ">"
+  def lGeneric = symbol "[["
+  def rGeneric = symbol "]]"
 
   def comma = rule { symbol(",") }
   def escapeChar = characterSetParser("\\\"'\{\}bnrtlfe ")
@@ -274,8 +272,6 @@ class exports {
   def useId = symbol "use"
   def varId = symbol "var" 
   def whereId = symbol "where" 
-
-
 
   //kernan
   def reservedIdentifier = rule {selfLiteral | aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId |  interfaceId |  isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId | traitId |  typeId |  useId |  varId |  whereId}
