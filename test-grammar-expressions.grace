@@ -1,8 +1,8 @@
 dialect "parserTestDialect"
 import "parsers2" as parsers
-inherits parsers.exports 
+inherit parsers.exports 
 import "grammar" as grammar
-inherits grammar.exports
+inherit grammar.exports
 
 //expressions (mostly)
 

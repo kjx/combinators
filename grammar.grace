@@ -1,5 +1,5 @@
 import "parsers2" as parsers
-inherits parsers.exports 
+inherit parsers.exports 
 
 //////////////////////////////////////////////////
 // Grace Grammar

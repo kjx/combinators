@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GRACE="mono --debug /Users/kjx/mwh-gre/gre/Grace/bin/Debug/Grace.exe"
+GRACE="mono --debug /Users/kjx/mwh-gre/kernan/Grace/bin/Debug/Grace.exe"
 
 #run single test
 function rt {

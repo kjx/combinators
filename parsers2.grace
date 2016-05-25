@@ -13,37 +13,37 @@ class exports {
 //   method currentIndentation:= (x) {outer.currentIndetation:= x}
 //   type InputStream = outer.InputStream
 //   class stringInputStream(string : String, position' : Number) {
-//         inherits outer.stringInputStream(string, position) }
+//         inherit outer.stringInputStream(string, position) }
 //   type ParseSuccessType = outer.ParseSuccessType
 //   type ParseFailureType = outer.ParseFailureType
 //   type ParseResult = (outer.ParseFailureType)
 //   class parseSuccess(next', result') {
-//      inherits outer.parseSuccess(next', result') }
-//   class parseFailure(message') { inherits parseFailure(message') }
-//   class abstractParser { inherits abstractParser  }
+//      inherit outer.parseSuccess(next', result') }
+//   class parseFailure(message') { inherit parseFailure(message') }
+//   class abstractParser { inherit abstractParser  }
 //   type Parser = (outer.Parser)
-//   class tokenParser(tken) { inherits tokenParser(tken) }
-//   class whiteSpaceParser { inherits whiteSpaceParser }
-//   class characterSetParser(charSet) { inherits characterSetParser(charSet) }
-//   class characterSetNotParser(charSet) { inherits characterSetParser(charSet) }
-//   class graceIdentifierParser { inherits graceIdentifierParser }
-//   class digitStringParser { inherits digitStringParser }
-//   class sequentialParser(left, right) { inherits sequentialParser(left, right) }
-//   class optionalParser(subParser) { inherits optionalParser(subParser) }
-//   class dropParser(subParser) { inherits dropParser(subParser) }
-//   class alternativeParser(left, right) { inherits alternativeParser(left, right) }
-//   class bothParser(left, right) { inherits bothParser(left, right) }
-//   class repetitionParser(subParser) { inherits repetitionParser(subParser) }
-//   class proxyParser(proxyBlock) { inherits proxyParser(proxyBlock)  }
-//   class wrappingProxyParser(proxyBlock, string) { inherits wrappingProxyParser(proxyBlock, string) }
-//   class atEndParser { inherits atEndParser }
-//   class notParser(subParser) { inherits notParser(subParser) }
-//   class guardParser(subParser, guardBlock) { inherits guardParser(subParser, guardBlock) }
-//   class successParser { inherits successParser }
-//   class tagParser(tagx : String) { inherits tagParser(tagx) }
-//   class phraseParser(tagx: String, subParser) { inherits phraseParser(tagx, subParser) }
-//   class indentationAssertionParser(indent : Number) { inherits indentationAssertionParser(indent) }
-//   class lineBreakParser(direction) { inherits lineBreakParser(direction)  }
+//   class tokenParser(tken) { inherit tokenParser(tken) }
+//   class whiteSpaceParser { inherit whiteSpaceParser }
+//   class characterSetParser(charSet) { inherit characterSetParser(charSet) }
+//   class characterSetNotParser(charSet) { inherit characterSetParser(charSet) }
+//   class graceIdentifierParser { inherit graceIdentifierParser }
+//   class digitStringParser { inherit digitStringParser }
+//   class sequentialParser(left, right) { inherit sequentialParser(left, right) }
+//   class optionalParser(subParser) { inherit optionalParser(subParser) }
+//   class dropParser(subParser) { inherit dropParser(subParser) }
+//   class alternativeParser(left, right) { inherit alternativeParser(left, right) }
+//   class bothParser(left, right) { inherit bothParser(left, right) }
+//   class repetitionParser(subParser) { inherit repetitionParser(subParser) }
+//   class proxyParser(proxyBlock) { inherit proxyParser(proxyBlock)  }
+//   class wrappingProxyParser(proxyBlock, string) { inherit wrappingProxyParser(proxyBlock, string) }
+//   class atEndParser { inherit atEndParser }
+//   class notParser(subParser) { inherit notParser(subParser) }
+//   class guardParser(subParser, guardBlock) { inherit guardParser(subParser, guardBlock) }
+//   class successParser { inherit successParser }
+//   class tagParser(tagx : String) { inherit tagParser(tagx) }
+//   class phraseParser(tagx: String, subParser) { inherit phraseParser(tagx, subParser) }
+//   class indentationAssertionParser(indent : Number) { inherit indentationAssertionParser(indent) }
+//   class lineBreakParser(direction) { inherit lineBreakParser(direction)  }
 //   method isletter(c) {outer.isletter(c)}
 //   method isdigit(c) {outer.isdigit(c)}
 //   method dyn(d : Unknown) (outer.dyn(d)}
@@ -186,7 +186,7 @@ class exports {
 
   // parse just a token - basically a string, matching exactly
   class tokenParser(tken) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "tokenParser"
    method parse(in) {
      def size = tken.size
@@ -201,7 +201,7 @@ class exports {
 
   // get at least one whitespace
   class whiteSpaceParser {
-   inherits abstractParser 
+   inherit abstractParser 
    def brand = "whiteSpaceParser"
    method parse(in) {
      var current := in
@@ -230,7 +230,7 @@ class exports {
 
   // parse single character from set of acceptable characters (given as a string)
   class characterSetParser(charSet) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "characterSetParser"
 
    method parse(in) {
@@ -247,7 +247,7 @@ class exports {
   }
 
   class characterSetNotParser(charSet) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "characterSetNotParser"
 
    method parse(in) {
@@ -263,7 +263,7 @@ class exports {
 
   //does *not* eat whitespace!
   class graceIdentifierParser { 
-   inherits abstractParser
+   inherit abstractParser
 
    def brand = "graceIdentifierParser"
 
@@ -299,7 +299,7 @@ class exports {
 
   // dunno why this is here?
   class digitStringParser { 
-   inherits abstractParser
+   inherit abstractParser
    def brand = "digitStringParser"
    method parse(in) {
 
@@ -334,7 +334,7 @@ class exports {
 
 
   class sequentialParser(left, right) { 
-   inherits abstractParser
+   inherit abstractParser
    def brand = "sequentialParser"
    method parse(in) {
       def leftResult = left.parse(in)
@@ -348,7 +348,7 @@ class exports {
 
 
   class optionalParser(subParser) { 
-   inherits abstractParser
+   inherit abstractParser
    def brand = "optionalParser"
    method parse(in) {
       return (subParser.parse(in)
@@ -360,7 +360,7 @@ class exports {
 
   //match as if SubParser, discard the result
   class dropParser(subParser) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "dropParser"
    method parse(in) {
       def subRes = subParser.parse(in)
@@ -372,7 +372,7 @@ class exports {
 
 
   class alternativeParser(left, right) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "alternativeParser"
    method parse(in) {
       def leftResult = left.parse(in)
@@ -387,7 +387,7 @@ class exports {
   //succeeds if both left & right succeed; returns LEFT parse
   //e.g. both(identifier,not(reservedIdentifiers)) -- except that's wrong!
   class bothParser(left, right) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "bothParser"
    method parse(in) {
       def leftResult = left.parse(in)
@@ -402,7 +402,7 @@ class exports {
 
 
   class repetitionParser(subParser) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "repetitionParser"
    method parse(in) {
      var current := in
@@ -425,7 +425,7 @@ class exports {
 
 
   class proxyParser(proxyBlock) { 
-   inherits abstractParser
+   inherit abstractParser
    def brand = "proxyParser"
    var subParser := "no parser installed"
    var needToInitialiseSubParser := true
@@ -459,7 +459,7 @@ class exports {
 
 
   class wrappingProxyParser(proxyBlock, string) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "wrappingProxyParser"
    var subParser := "no parser installed"
    var needToInitialiseSubParser := true
@@ -483,7 +483,7 @@ class exports {
 
   // get at least one whitespace
   class atEndParser { 
-   inherits abstractParser
+   inherit abstractParser
    def brand = "atEndParser"
    method parse(in) {
      if (in.atEnd) then {
@@ -498,7 +498,7 @@ class exports {
 
   // succeeds when subparser fails; never consumes input if succeeds
   class notParser(subParser) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "notParser"
    method parse(in) {
       def result = subParser.parse(in)
@@ -512,7 +512,7 @@ class exports {
 
 
   class guardParser(subParser, guardBlock) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "guardParser"
    method parse(in) {
       def result = subParser.parse(in)
@@ -526,7 +526,7 @@ class exports {
 
 
   class successParser {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "successParser"
    method parse(in) {return parseSuccess(in,"!!success!!")}
 
@@ -535,7 +535,7 @@ class exports {
 
   // puts tag into output
   class tagParser(tagx : String) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "tagParser"
    method parse(in) {return parseSuccess(in, tagx)}
 
@@ -543,7 +543,7 @@ class exports {
 
   // puts tagx around start and end of parse
   class phraseParser(tagx: String, subParser) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "phraseParser"
    method parse(in) {
       def result = subParser.parse(in)
@@ -558,7 +558,7 @@ class exports {
 
 
   class indentationAssertionParser(indent : Number) {
-   inherits abstractParser
+   inherit abstractParser
    def brand = "indentationAssertionParser"
    method parse(in) {
      if (in.indentation == indent) 
@@ -570,7 +570,7 @@ class exports {
 
 
   class lineBreakParser(direction) { 
-   inherits abstractParser
+   inherit abstractParser
    def brand = "lineBreakParser"
    method parse(in) {
 
