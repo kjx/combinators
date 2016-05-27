@@ -1,6 +1,4 @@
 dialect "parserTestDialect" 
-import "parsers2" as parsers
-inherit parsers.exports 
 
 def strm   = stringInputStream("Hello World",1)
 def strm2  = stringInputStream("   Hello World",1)

@@ -1,9 +1,4 @@
 dialect "parserTestDialect"
-import "parsers2" as parsers
-inherit parsers.exports 
-import "grammar" as grammar
-inherit grammar.exports
-
 
 test (typeId) on "type" correctly "16aa1"
 test (typeId ~ end) on "type" correctly "16aa2"

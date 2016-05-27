@@ -1,8 +1,4 @@
 dialect "parserTestDialect"
-import "parsers2" as parsers
-inherit parsers.exports 
-import "grammar" as grammar
-inherit grammar.exports
 
 currentIndentation := 1
 test (codeSequence ~ identifier) on " var x := 4\n foo\n def b = 4\n bar\n baz" correctly "013a2"

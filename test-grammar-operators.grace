@@ -1,8 +1,4 @@
 dialect "parserTestDialect"
-import "parsers2" as parsers
-inherit parsers.exports 
-import "grammar" as grammar
-inherit grammar.exports
 
 //test expressions with operators, vars, defs...
 

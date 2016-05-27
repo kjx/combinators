@@ -1,10 +1,10 @@
 import "parsers2" as parsers
-inherit parsers.exports 
 
 //////////////////////////////////////////////////
 // Grace Grammar
 
 class exports {
+  inherit parsers.exports 
   //BEGINGRAMMAR
   // top level
   def program = rule {codeSequence ~ rep(ws) ~ end}

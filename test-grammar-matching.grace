@@ -1,8 +1,4 @@
 dialect "parserTestDialect"
-import "parsers2" as parsers
-inherit parsers.exports 
-import "grammar" as grammar
-inherit grammar.exports
 
 
 test (matchBinding ~ end) on "a" wrongly "018a1"  //formals subsume var match

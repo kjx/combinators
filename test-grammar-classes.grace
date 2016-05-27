@@ -1,9 +1,4 @@
 dialect "parserTestDialect"
-import "parsers2" as parsers
-inherit parsers.exports 
-import "grammar" as grammar
-inherit grammar.exports
-
 
 testProgramOn "class Foo \{ \}" correctly "015a"
 testProgramOn "class Foo \{ a; b; c \}" correctly "015b"
