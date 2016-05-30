@@ -34,15 +34,15 @@ method abstract {
     SubobjectResponsibility.raise "abstract method not overriden by subobject"
 }
 
-type Block0<R> = type {
+type Block0[[R]] = type {
     apply -> R
 }
 
-type Block1<T,R> = type {
+type Block1[[T,R]] = type {
     apply(a:T) -> R
 }
 
-type Block2<S,T,R> = type {
+type Block2[[S,T,R]] = type {
     apply(a:S, b:T) -> R
 }
 
@@ -50,160 +50,160 @@ type Self = Unknown     // becuase it's not yet in the language
 type Object = type { }  //KERNAN
 
 
-type Iterable<T> = Object & type {
-    iterator -> Iterator<T>
+type Iterable[[T]] = Object & type {
+    iterator -> Iterator[[T]]
         // the iterator on which I am based
     isEmpty -> Boolean
         // true if I have no elements
     first -> T
         // my first element; raises BoundsError if I have none.
-    do(block1: Block1<T, Done>) -> Done
+    do(block1: Block1[[T, Done]]) -> Done
         // an internal iterator; applies block1 to each of my elements
-    do(body:Block1<T, Done>) separatedBy(separator:Block0<Done>) -> Done
+    do(body:Block1[[T, Done]]) separatedBy(separator:Block0[[Done]]) -> Done
         // an internal iterator; ; applies block1 to each of my elements, and applies separator in between
-    ++(other: Iterable<T>) -> Iterable<T>
+    ++(other: Iterable[[T]]) -> Iterable[[T]]
         // returns a new iterator over the concatenation of self and other
-    fold(binaryFunction:Block2<T, T, T>) startingWith(initial:T) -> Object
+    fold(binaryFunction:Block2[[T, T, T]]) startingWith(initial:T) -> Object
         // the left-associative fold of binaryFunction over self, starting with initial
-    map<U>(function:Block1<T, U>) -> Iterator<U>
+    map[[U]](function:Block1[[T, U]]) -> Iterator[[U]]
         // returns a new iterator that yields my elements mapped by function
-    filter(condition:Block1<T,Boolean>) -> Iterator<T>
+    filter(condition:Block1[[T,Boolean]]) -> Iterator[[T]]
         // returns a new iterator that yields those of my elements for which condition holds 
 }
 
-type Expandable<T> = Iterable<T> & type {
-    add(*x: T) -> Self
-    addAll(xs: Iterable<T>) -> Self
+type Expandable[[T]] = Iterable[[T]] & type {
+    //add(*x: T) -> Self
+    addAll(xs: Iterable[[T]]) -> Self
 }
 
-type Collection<T> = Iterable<T> & type {
-    asList -> List<T>
-    asSequence -> Sequence<T>
-    asSet -> Set<T>
+type Collection[[T]] = Iterable[[T]] & type {
+    asList -> List[[T]]
+    asSequence -> Sequence[[T]]
+    asSet -> Set[[T]]
 }
 
-type Enumerable<T> = Collection<T> & type {
-    values -> Collection<T>
-    asDictionary -> Dictionary<Number,T>
-    keysAndValuesDo(action:Block2<Number,T,Object>) -> Done
-    onto(resultFactory:EmptyCollectionFactory<T>) -> Collection<T>
-    into(existing: Expandable<Unknown>) -> Collection<Unknown>
-    sortedBy(comparison:Block2<T,T,Number>) -> Self
+type Enumerable[[T]] = Collection[[T]] & type {
+    values -> Collection[[T]]
+    asDictionary -> Dictionary[[Number,T]]
+    keysAndValuesDo(action:Block2[[Number,T,Object]]) -> Done
+    onto(resultFactory:EmptyCollectionFactory[[T]]) -> Collection[[T]]
+    into(existing: Expandable[[Unknown]]) -> Collection[[Unknown]]
+    sortedBy(comparison:Block2[[T,T,Number]]) -> Self
     sorted -> Self
 }
 
-type Sequence<T> = Enumerable<T> & type {
+type Sequence[[T]] = Enumerable[[T]] & type {
     size -> Number
     at(n:Number) -> T
-    [ n:Number ] -> T            //kernan
-    indices -> Sequence<Number>
-    keys -> Sequence<Number>
+    // [ n:Number ] -> T            //kernan
+    indices -> Sequence[[Number]]
+    keys -> Sequence[[Number]]
     second -> T
     third -> T
     fourth -> T
     fifth -> T
     last -> T
-    indexOf<W>(elem:T)ifAbsent(action:Block0<W>) -> Number | W
+    indexOf[[W]](elem:T)ifAbsent(action:Block0[[W]]) -> Number | W
     indexOf(elem:T) -> Number
     contains(elem:T) -> Boolean
-    reversed -> Sequence<T>
+    reversed -> Sequence[[T]]
 }
 
-type List<T> = Sequence<T> & type {
-    add(*x: T) -> List<T>
-    addAll(xs: Iterable<T>) -> List<T>
-    addFirst(*x: T) -> List<T>
-    addAllFirst(xs: Iterable<T>) -> List<T>
-    addLast(*x: T) -> List<T>    // same as add
-    at(ix:Number) put(v:T) -> List<T>
+type List[[T]] = Sequence[[T]] & type {
+    // add(*x: T) -> List[[T]]
+    addAll(xs: Iterable[[T]]) -> List[[T]]
+    // addFirst(*x: T) -> List[[T]]
+    addAllFirst(xs: Iterable[[T]]) -> List[[T]]
+    // addLast(*x: T) -> List[[T]]    // same as add
+    at(ix:Number) put(v:T) -> List[[T]]
     //[]:= (ix:Number, v:T) -> Done  // KERNAN
     removeFirst -> T
     removeAt(n: Number) -> T
     removeLast -> T
-    remove(*v:T)
-    remove(*v:T) ifAbsent(action:Block0<Done>)
-    removeAll(vs: Iterable<T>)
-    removeAll(vs: Iterable<T>) ifAbsent(action:Block0<Unknown>)
+    // remove(*v:T)
+    // remove(*v:T) ifAbsent(action:Block0[[Done]])
+    removeAll(vs: Iterable[[T]])
+    removeAll(vs: Iterable[[T]]) ifAbsent(action:Block0[[Unknown]])
     pop -> T
-    ++(o: List<T>) -> List<T>
-    addAll(l: Iterable<T>) -> List<T>
-    copy -> List<T>
-    sort -> List<T>
-    sortBy(sortBlock:Block2<T,T,Number>) -> List<T>
-    reverse -> List<T>
-    reversed -> List<T>
+    ++(o: List[[T]]) -> List[[T]]
+    addAll(l: Iterable[[T]]) -> List[[T]]
+    copy -> List[[T]]
+    sort -> List[[T]]
+    sortBy(sortBlock:Block2[[T,T,Number]]) -> List[[T]]
+    reverse -> List[[T]]
+    reversed -> List[[T]]
 }
 
-type Set<T> = Collection<T> & type {
+type Set[[T]] = Collection[[T]] & type {
     size -> Number
-    add(*elements:T) -> Self
-    addAll(elements: Iterable<T>) -> Self
-    remove(*elements: T) -> Set<T>
-    remove(*elements: T) ifAbsent(block: Block0<Done>) -> Set<T>
-    includes(booleanBlock: Block1<T,Boolean>) -> Boolean
-    find(booleanBlock: Block1<T,Boolean>) ifNone(notFoundBlock: Block0<T>) -> T
-    copy -> Set<T>
+    // add(*elements:T) -> Self
+    addAll(elements: Iterable[[T]]) -> Self
+    // remove(*elements: T) -> Set[[T]]
+    // remove(*elements: T) ifAbsent(block: Block0[[Done]]) -> Set[[T]]
+    includes(booleanBlock: Block1[[T,Boolean]]) -> Boolean
+    find(booleanBlock: Block1[[T,Boolean]]) ifNone(notFoundBlock: Block0[[T]]) -> T
+    copy -> Set[[T]]
     contains(elem:T) -> Boolean
-    ** (other:Set<T>) -> Set<T>
-    -- (other:Set<T>) -> Set<T>
-    ++ (other:Set<T>) -> Set<T>
-    removeAll(elems: Iterable<T>)
-    removeAll(elems: Iterable<T>)ifAbsent(action:Block0<Done>) -> Set<T>
-    onto(resultFactory:EmptyCollectionFactory<T>) -> Collection<T>
-    into(existing: Expandable<Unknown>) -> Collection<Unknown>
+    ** (other:Set[[T]]) -> Set[[T]]
+    -- (other:Set[[T]]) -> Set[[T]]
+    ++ (other:Set[[T]]) -> Set[[T]]
+    removeAll(elems: Iterable[[T]])
+    removeAll(elems: Iterable[[T]])ifAbsent(action:Block0[[Done]]) -> Set[[T]]
+    onto(resultFactory:EmptyCollectionFactory[[T]]) -> Collection[[T]]
+    into(existing: Expandable[[Unknown]]) -> Collection[[Unknown]]
 }
 
-type Dictionary<K,T> = Collection<T> & type {
+type Dictionary[[K,T]] = Collection[[T]] & type {
     size -> Number
     containsKey(k:K) -> Boolean
     containsValue(v:T) -> Boolean
     contains(elem:T) -> Boolean
-    at(key:K)ifAbsent(action:Block0<Unknown>) -> Unknown
-    at(key:K)put(value:T) -> Dictionary<K,T>
+    at(key:K)ifAbsent(action:Block0[[Unknown]]) -> Unknown
+    at(key:K)put(value:T) -> Dictionary[[K,T]]
     // []:= (k:K, v:T) -> Done // KERNAN
     at(k:K) -> T
-    [ k:K ] -> T //kernan
-    removeAllKeys(keys: Iterable<K>) -> Dictionary<K,T>
-    removeKey(*keys:K) -> Dictionary<K,T>
-    removeAllValues(removals: Iterable<T>) -> Dictionary<K,T>
-    removeValue(*removals:T) -> Dictionary<K,T>
-    keys -> Enumerable<K>
-    values -> Enumerable<T>
-    bindings -> Enumerable<Binding<K,T>>
-    keysAndValuesDo(action:Block2<K,T,Done>) -> Done
-    keysDo(action:Block1<K,Done>) -> Done
-    valuesDo(action:Block1<T,Done>) -> Done
+    // [ k:K ] -> T //kernan
+    removeAllKeys(keys: Iterable[[K]]) -> Dictionary[[K,T]]
+    //removeKey(*keys:K) -> Dictionary[[K,T]]
+    removeAllValues(removals: Iterable[[T]]) -> Dictionary[[K,T]]
+    //removeValue(*removals:T) -> Dictionary[[K,T]]
+    keys -> Enumerable[[K]]
+    values -> Enumerable[[T]]
+    bindings -> Enumerable[[Binding[[K,T]]>
+    keysAndValuesDo(action:Block2[[K,T,Done]]) -> Done
+    keysDo(action:Block1[[K,Done]]) -> Done
+    valuesDo(action:Block1[[T,Done]]) -> Done
     == (other:Object) -> Boolean
-    copy -> Dictionary<K,T>
-    ++ (other:Dictionary<K, T>) -> Dictionary<K, T>
-    -- (other:Dictionary<K, T>) -> Dictionary<K, T>
-    asDictionary -> Dictionary<K, T>
+    copy -> Dictionary[[K,T]]
+    ++ (other:Dictionary[[K, T]]) -> Dictionary[[K, T]]
+    -- (other:Dictionary[[K, T]]) -> Dictionary[[K, T]]
+    asDictionary -> Dictionary[[K, T]]
 }
 
-type Iterator<T> = type {
+type Iterator[[T]] = type {
     hasNext -> Boolean
     next -> T
 }
 
-type CollectionFactory<T> = type {
-    withAll (elts: Iterable<T>) -> Collection<T>
-    with (*elts:Object) -> Collection<T>
-    empty -> Collection<T>
+type CollectionFactory[[T]] = type {
+    withAll (elts: Iterable[[T]]) -> Collection[[T]]
+    // with (*elts:Object) -> Collection[[T]]
+    empty -> Collection[[T]]
 }
 
-type EmptyCollectionFactory<T> = type {
-    empty -> Collection<T>
+type EmptyCollectionFactory[[T]] = type {
+    empty -> Collection[[T]]
 }
 
-trait collectionFactoryTrait<T> {
-    method withAll(elts: Iterable<T>) -> Collection<T> { abstract }
-    method with(*a:T) -> Unknown { self.withAll(a) }
+trait collectionFactoryTrait[[T]] {
+    method withAll(elts: Iterable[[T]]) -> Collection[[T]] { abstract }
+    //method with(*a:T) -> Unknown { self.withAll(a) }
     method empty -> Unknown { self.with() }
 }
 
-class lazySequenceOver<T,R>(source: Iterable<T>)
-        mappedBy(function:Block1<T,R>) -> Enumerable<R> is confidential {
-    inherits enumerableTrait<T>
+class lazySequenceOver[[T,R]](source: Iterable[[T]])
+        mappedBy(function:Block1[[T,R]]) -> Enumerable[[R]] is confidential {
+    inherit enumerableTrait[[T]]
     class iterator {
         def sourceIterator = source.iterator
         method asString { "an iterator over a lazy map sequence" }
@@ -215,9 +215,9 @@ class lazySequenceOver<T,R>(source: Iterable<T>)
     method asDebugString { "a lazy sequence mapping over {source}" }
 }
 
-class lazySequenceOver<T>(source: Iterable<T>)
-        filteredBy(predicate:Block1<T,Boolean>) -> Enumerable<T> is confidential {
-    inherits enumerableTrait<T>
+class lazySequenceOver[[T]](source: Iterable[[T]])
+        filteredBy(predicate:Block1[[T,Boolean]]) -> Enumerable[[T]] is confidential {
+    inherit enumerableTrait[[T]]
     class iterator {
         var cache
         var cacheLoaded := false
@@ -251,7 +251,7 @@ class lazySequenceOver<T>(source: Iterable<T>)
     method asDebugString { "a lazy sequence filtering {source}" }
 }
 
-class iteratorConcat<T>(left:Iterator<T>, right:Iterator<T>) {
+class iteratorConcat[[T]](left:Iterator[[T]], right:Iterator[[T]]) {
     method next {
         if (left.hasNext) then {
             left.next
@@ -266,8 +266,8 @@ class iteratorConcat<T>(left:Iterator<T>, right:Iterator<T>) {
     method asDebugString { "iteratorConcat of {left} and {right}" }
     method asString { "an iterator over a concatenation" }
 }
-class lazyConcatenation<T>(left, right) -> Enumerable<T>{
-    inherits enumerableTrait<T>
+class lazyConcatenation[[T]](left, right) -> Enumerable[[T]]{
+    inherit enumerableTrait[[T]]
        alias superAsString = asString
     method iterator {
         iteratorConcat(left.iterator, right.iterator)
@@ -277,8 +277,8 @@ class lazyConcatenation<T>(left, right) -> Enumerable<T>{
     method size { left.size + right.size }  // may raise SizeUnknown
 }
 
-trait collectionTrait<T> {
-    uses equalityTrait
+trait collectionTrait[[T]] {
+    use equalityTrait
     method do { abstract }
     method iterator { abstract }
     method isEmpty {
@@ -317,10 +317,10 @@ trait collectionTrait<T> {
         }
         return result
     }
-    method map<R>(block1:Block1<T,R>) -> Enumerable<R> {
+    method map[[R]](block1:Block1[[T,R]]) -> Enumerable[[R]] {
         lazySequenceOver(self) mappedBy(block1)
     }
-    method filter(selectionCondition:Block1<T,Boolean>) -> Enumerable<T> {
+    method filter(selectionCondition:Block1[[T,Boolean]]) -> Enumerable[[T]] {
         lazySequenceOver(self) filteredBy(selectionCondition)
     }
 
@@ -337,8 +337,8 @@ trait collectionTrait<T> {
     }
 }
 
-trait enumerableTrait<T> {
-    uses collectionTrait<T>
+trait enumerableTrait[[T]] {
+    use collectionTrait[[T]]
     method iterator { abstract }
     method size {
         // override if size is known
@@ -351,10 +351,10 @@ trait enumerableTrait<T> {
         }
         return result
     }
-    method onto(f: CollectionFactory<T>) -> Collection<T> {
+    method onto(f: CollectionFactory[[T]]) -> Collection[[T]] {
         f.withAll(self)
     }
-    method into(existing: Expandable<T>) -> Collection<T> {
+    method into(existing: Expandable[[T]]) -> Collection[[T]] {
         def selfIterator = self.iterator
         while {selfIterator.hasNext} do {
             existing.add(selfIterator.next)
@@ -364,13 +364,13 @@ trait enumerableTrait<T> {
     method ==(other) {
         isEqual (self) toIterable (other)
     }
-    method do(block1:Block1<T,Done>) -> Done {
+    method do(block1:Block1[[T,Done]]) -> Done {
         def selfIterator = self.iterator
         while {selfIterator.hasNext} do {
             block1.apply(selfIterator.next)
         }
     }
-    method keysAndValuesDo(block2:Block2<Number,T,Done>) -> Done {
+    method keysAndValuesDo(block2:Block2[[Number,T,Done]]) -> Done {
         var ix := 0
         def selfIterator = self.iterator
         while {selfIterator.hasNext} do {
@@ -378,10 +378,10 @@ trait enumerableTrait<T> {
             block2.apply(ix, selfIterator.next)
         }
     }
-    method values -> Collection<T> {
+    method values -> Collection[[T]] {
         self
     }
-    method fold<R>(block2)startingWith(initial) -> R {
+    method fold[[R]](block2)startingWith(initial) -> R {
         var res := initial
         def selfIterator = self.iterator
         while { selfIterator.hasNext } do {
@@ -389,13 +389,13 @@ trait enumerableTrait<T> {
         }
         return res
     }
-    method ++ (other) -> Enumerable<T> {
+    method ++ (other) -> Enumerable[[T]] {
         lazyConcatenation(self, other)
     }
-    method sortedBy(sortBlock:Block2) -> List<T> {
+    method sortedBy(sortBlock:Block2) -> List[[T]] {
         self.asList.sortBy(sortBlock)
     }
-    method sorted -> List<T> {
+    method sorted -> List[[T]] {
         self.asList.sort
     }
     method asString {
@@ -405,12 +405,12 @@ trait enumerableTrait<T> {
     }
 }
 
-trait indexableTrait<T> {
-    uses collectionTrait<T>
+trait indexableTrait[[T]] {
+    use collectionTrait[[T]]
     method at { abstract }
     method size { abstract }
     method isEmpty { size == 0 }
-    method keysAndValuesDo(action:Block2<Number,T,Done>) -> Done {
+    method keysAndValuesDo(action:Block2[[Number,T,Done]]) -> Done {
         def curSize = size
         var i := 1
         while {i <= curSize} do {
@@ -424,7 +424,7 @@ trait indexableTrait<T> {
     method fourth { at(4) }
     method fifth { at(5) }
     method last { at(size) }
-    method [ix] { at(ix) }                //kernan 
+    // method [ix] { at(ix) }                //kernan 
     method indices { range.from 1 to(size) }
     method indexOf(sought:T)  {
         indexOf(sought) ifAbsent { NoSuchObject.raise "{sought} not in collection" }
@@ -442,10 +442,10 @@ trait indexableTrait<T> {
         }
         return result
     }
-    method onto(f: CollectionFactory<T>) -> Collection<T> {
+    method onto(f: CollectionFactory[[T]]) -> Collection[[T]] {
         f.withAll(self)
     }
-    method into(existing: Expandable<T>) -> Collection<T> {
+    method into(existing: Expandable[[T]]) -> Collection[[T]] {
         def selfIterator = self.iterator
         while {selfIterator.hasNext} do {
             existing.add(selfIterator.next)
@@ -459,11 +459,11 @@ method max(a,b) is confidential {       // repeated from standard prelude
 }
 
 def emptySequence is confidential = object {
-    inherits indexableTrait
+    inherit indexableTrait
     method size { 0 }
     method isEmpty { true }
     method at(n) { BoundsError.raise "index {n} of empty sequence" }
-    method [n] { BoundsError.raise "index {n} of empty sequence" }  //kernan
+    // method [n] { BoundsError.raise "index {n} of empty sequence" }  //kernan
     method keys { self }
     method values { self }
     method keysAndValuesDo(block2) { done }
@@ -490,15 +490,15 @@ def emptySequence is confidential = object {
     method sortedBy(sortBlock:Block2){ self }
 }
 
-class sequence<T> {
-    inherits collectionFactoryTrait<T>
+class sequence[[T]] {
+    inherit collectionFactoryTrait[[T]]
 
     method empty is override {
         // this is an optimization: there need be just one empty sequence
         emptySequence
     }
 
-    method withAll(*a: Iterable) {
+    method withAll(a: Iterable) {
         var forecastSize := 0
         var sizeUncertain := false
         // size might be uncertain if one of the arguments is a lazy collection.
@@ -544,7 +544,7 @@ class sequence<T> {
         // constructs a sequence from the first sz elements of pArray
 
         object {
-            inherits indexableTrait
+            inherit indexableTrait
             def size is public = sz
             def inner = pArray
 
@@ -559,10 +559,7 @@ class sequence<T> {
                 boundsCheck(n)
                 inner.at(n - 1)
             }
-            method [n] {              //kernan
-                boundsCheck(n)
-                inner.at(n - 1)
-            }
+            
             method keys {
                 range.from(1)to(size)
             }
@@ -653,14 +650,14 @@ method isEqual(left) toIterable(right) {
     }
 }
 
-class list<T> {
-    inherits collectionFactoryTrait<T>
+class list[[T]] {
+    inherit collectionFactoryTrait[[T]]
 
-    method withAll(a: Iterable<T>) -> List<T> {
+    method withAll(a: Iterable[[T]]) -> List[[T]] {
 
         object {
             // the new list object without native code
-            inherits indexableTrait<T>
+            inherit indexableTrait[[T]]
             var size is readable := 0 //KERNAN moved up from below
             var mods is readable := 0
             var initialSize
@@ -681,10 +678,7 @@ class list<T> {
                 boundsCheck(n)
                 inner.at(n - 1)
             }
-            method [n] {
-                boundsCheck(n)
-                inner.at(n - 1)
-            }
+            
             method at(n)put(x) {
                 mods := mods + 1
                 if (n == (size + 1)) then {
@@ -695,19 +689,7 @@ class list<T> {
                 }
                 self
             }
-            method [n] := (x) {
-                mods := mods + 1
-                if (n == (size + 1)) then {
-                    addLast(x)
-                } else {
-                    boundsCheck(n)
-                    inner.at(n - 1)put(x)
-                }
-                done
-            }
-            method add(*x) {
-                addAll(x)
-            }
+            method add(e) { addAll [ e ] }           
             method addAll(l) {
                 mods := mods + 1
                 if ((size + sizeOfVariadicList(l)) > inner.size) then {
@@ -726,7 +708,6 @@ class list<T> {
                 size := size + 1
                 self
             }
-            method addLast(*x) { addAll(x) }    // compatibility
             method removeLast {
                 mods := mods + 1
                 def result = inner.at(size - 1)
@@ -750,7 +731,6 @@ class list<T> {
                 size := size + increase
                 self
             }
-            method addFirst(*l) { addAllFirst(l) }
             method removeFirst {
                 removeAt(1)
             }
@@ -764,16 +744,16 @@ class list<T> {
                 size := size - 1
                 return removed
             }
-            method remove(*v:T) {
-                removeAll(v)
+            method remove(v:T) {
+                removeAll [ v ]
             }
-            method remove(*v:T) ifAbsent(action:Block0<Done>) {
-                removeAll(v) ifAbsent (action)
+            method remove(v:T) ifAbsent(action:Block0[[Done]]) {
+                removeAll [ v ] ifAbsent (action)
             }
-            method removeAll(vs: Iterable<T>) {
+            method removeAll(vs: Iterable[[T]]) {
                 removeAll(vs) ifAbsent { NoSuchObject.raise "object not in list" }
             }
-            method removeAll(vs: Iterable<T>) ifAbsent(action:Block0<Done>)  {
+            method removeAll(vs: Iterable[[T]]) ifAbsent(action:Block0[[Done]])  {
                 for (vs) do { each ->
                     def ix = indexOf(each) ifAbsent { 0 }
                     if (ix != 0) then {
@@ -888,12 +868,12 @@ class list<T> {
 }
 
 
-class set<T> {
-    inherits collectionFactoryTrait<T>
+class set[[T]] {
+    inherit collectionFactoryTrait[[T]]
 
-    method withAll(a: Iterable<T>) -> Set<T> {
+    method withAll(a: Iterable[[T]]) -> Set[[T]] {
         object {
-            inherits collectionTrait
+            inherit collectionTrait
             var mods is readable := 0
             var initialSize
             try { initialSize := max(sizeOfVariadicList(a) * 3 + 1, 8) }
@@ -928,7 +908,7 @@ class set<T> {
                 self    // for chaining
             }
 
-            method add(*elements) { addAll(elements) }
+            method add(elements) { addAll [ element ] }
 
             method removeAll(elements) {
                 for (elements) do { x ->
@@ -952,12 +932,12 @@ class set<T> {
                 self    // for chaining
             }
 
-            method remove(*elements)ifAbsent(block) {
-                removeAll(elements) ifAbsent(block)
+            method remove(elements)ifAbsent(block) {
+                removeAll [ elements ] ifAbsent(block)
             }
 
-            method remove(*elements) {
-                removeAll(elements)
+            method remove(elements) {
+                removeAll [ elements ]
             }
 
             method contains(x) {
@@ -1124,23 +1104,23 @@ class set<T> {
             // set intersection
                 (filter {each -> other.contains(each)}).asSet
             }
-            method isSubset(s2: Set<T>) {
+            method isSubset(s2: Set[[T]]) {
                 self.do{ each ->
                     if (s2.contains(each).not) then { return false }
                 }
                 return true
             }
 
-            method isSuperset(s2: Iterable<T>) {
+            method isSuperset(s2: Iterable[[T]]) {
                 s2.do{ each ->
                     if (self.contains(each).not) then { return false }
                 }
                 return true
             }
-            method onto(f: CollectionFactory<T>) -> Collection<T> {
+            method onto(f: CollectionFactory[[T]]) -> Collection[[T]] {
                 f.withAll(self)
             }
-            method into(existing: Expandable<T>) -> Collection<T> {
+            method into(existing: Expandable[[T]]) -> Collection[[T]] {
                 do { each -> existing.add(each) }
                 existing
             }
@@ -1148,7 +1128,7 @@ class set<T> {
     }
 }
 
-type Binding<K,T> = {
+type Binding[[K,T]] = {
     key -> K
     value -> T
     hash -> Number
@@ -1156,7 +1136,7 @@ type Binding<K,T> = {
 }
 
 class key(k)value(v) {
-    uses equalityTrait
+    use equalityTrait
     method key {k}
     method value {v}
     method asString { "{k} :: {v}" }
@@ -1169,14 +1149,14 @@ class key(k)value(v) {
     }
 }
 
-class dictionary<K,T> {
-    inherits collectionFactoryTrait<T>
+class dictionary[[K,T]] {
+    inherit collectionFactoryTrait[[T]]
     method at(k:K)put(v:T) {
             self.empty.at(k)put(v)
     }
-    method withAll(initialBindings: Iterable<Binding<K,T>>) -> Dictionary<K,T> {
+    method withAll(initialBindings: Iterable[[Binding[[K,T]] ]]) -> Dictionary[[K,T]] {
         object {
-            inherits collectionTrait<T>
+            inherit collectionTrait[[T]]
             var mods is readable := 0
             var numBindings := 0
             var inner := mem.allocate(8)
@@ -1207,10 +1187,6 @@ class dictionary<K,T> {
                 if ((size * 2) > inner.size) then { expand }
                 self    // for chaining
             }
-            method [k] := (v) {
-                at(k)put(v)
-                done
-            }
             method at(k) {
                 var b := inner.at(findPosition(k))
                 if (b.key == k) then {
@@ -1225,7 +1201,7 @@ class dictionary<K,T> {
                 }
                 return action.apply
             }
-            method [k] { at(k) }
+
             method containsKey(k) {
                 var t := findPosition(k)
                 if (inner.at(t).key == k) then {
@@ -1246,8 +1222,8 @@ class dictionary<K,T> {
                 }
                 return self
             }
-            method removeKey(*keys) {
-                removeAllKeys(keys)
+            method removeKey(keys) {
+                removeAllKey [ keys ]
             }
             method removeAllValues(removals) {
                 mods := mods + 1
@@ -1260,8 +1236,8 @@ class dictionary<K,T> {
                 }
                 return self
             }
-            method removeValue(*removals) {
-                removeAllValues(removals)
+            method removeValue(removals) {
+                removeAllValues [ removals ]
             }
             method containsValue(v) {
                 self.valuesDo{ each ->
@@ -1337,10 +1313,10 @@ class dictionary<K,T> {
                 }
                 s ++ "⟭"
             }
-            method keys -> Enumerable<K> {
+            method keys -> Enumerable[[K]] {
                 def sourceDictionary = self
                 object {
-                    inherits enumerableTrait<K>
+                    inherit enumerableTrait[[K]]
                     class iterator {
                         def sourceIterator = sourceDictionary.bindingsIterator
                         method hasNext { sourceIterator.hasNext }
@@ -1355,10 +1331,10 @@ class dictionary<K,T> {
                     }
                 }
             }
-            method values -> Enumerable<T> {
+            method values -> Enumerable[[T]] {
                 def sourceDictionary = self
                 object {
-                    inherits enumerableTrait<T>
+                    inherit enumerableTrait[[T]]
                     class iterator {
                         def sourceIterator = sourceDictionary.bindingsIterator
                         // should be request on outer
@@ -1374,10 +1350,10 @@ class dictionary<K,T> {
                     }
                 }
             }
-            method bindings -> Enumerable<T> {
+            method bindings -> Enumerable[[T]] {
                 def sourceDictionary = self
                 object {
-                    inherits enumerableTrait<T>
+                    inherit enumerableTrait[[T]]
                     method iterator { sourceDictionary.bindingsIterator }
                     // should be request on outer
                     def size is public = sourceDictionary.size
@@ -1386,8 +1362,8 @@ class dictionary<K,T> {
                     }
                 }
             }
-            method iterator -> Iterator<T> { values.iterator }
-            class bindingsIterator -> Iterator<Binding<K, T>> {
+            method iterator -> Iterator[[T]] { values.iterator }
+            class bindingsIterator -> Iterator[[Binding[[K, T]] ]] {
                 // this should be confidential, but can't be until `outer` is fixed.
                 def imods:Number = mods
                 var count := 1
@@ -1502,9 +1478,9 @@ class dictionary<K,T> {
 }
 
 class range {
-    method from(lower)to(upper) -> Sequence<Number> {
+    method from(lower)to(upper) -> Sequence[[Number]] {
         object {
-            inherits indexableTrait<Number>
+            inherit indexableTrait[[Number]]
             match (lower)
                 case {_:Number -> }
                 case {_ -> RequestError.raise ( "lower bound {lower}" ++ 
@@ -1608,9 +1584,9 @@ class range {
             }
         }
     }
-    method from(upper)downTo(lower) -> Sequence<Number> {
+    method from(upper)downTo(lower) -> Sequence[[Number]] {
         object {
-            inherits indexableTrait
+            inherit indexableTrait
             match (upper)
                 case {_:Number -> }
                 case {_ -> RequestError.raise ("upper bound {upper}" ++
