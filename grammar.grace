@@ -85,8 +85,7 @@ class exports {
     var otherOperator 
     basicTypeExpression ~ opt(ws) ~
       opt( guard(typeOp, { s -> otherOperator:= s;
-                                true })
-            ~ rep1sep(basicTypeExpression ~ opt(ws),
+                                true }) ~ rep1sep(basicTypeExpression ~ opt(ws),
                guard(typeOp, { s -> s == otherOperator })
           )
       )

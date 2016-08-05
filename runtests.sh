@@ -33,3 +33,12 @@ function exp {
  fi    
 $GRACE $FILE > EXP-$FILE
 }
+
+function makeMasterTestModule { 
+ echo > masterTestModule.grace
+ for t in test-parser*.grace test-grammar*.grace 
+  do
+   echo "import \"`basename $t .grace`\" as `echo $t | tr -d .-`" >> masterTestModule.grace
+  done 
+}
+
