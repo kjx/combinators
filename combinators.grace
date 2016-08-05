@@ -116,7 +116,7 @@ type Parser = {
 
 // parse just a token - basically a string, matching exactly
 class tokenParser(tken) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "tokenParser"
  method parse(in) {
    def size = tken.size
@@ -131,7 +131,7 @@ class tokenParser(tken) {
 
 // get at least one whitespace
 class whiteSpaceParser {
- inherits abstractParser 
+ inherit abstractParser 
  def brand = "whiteSpaceParser"
  method parse(in) {
    var current := in
@@ -160,7 +160,7 @@ class whiteSpaceParser {
 
 // parser single character from set of acceptable characters (given as a string)
 class characterSetParser(charSet) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "characterSetParser"
 
  method parse(in) {
@@ -178,7 +178,7 @@ class characterSetParser(charSet) {
 
 //does *not* eat whitespace!
 class graceIdentifierParser { 
- inherits abstractParser
+ inherit abstractParser
 
  def brand = "graceIdentifierParser"
 
@@ -214,7 +214,7 @@ class graceIdentifierParser {
 
 // dunno why this is here?
 class digitStringParser { 
- inherits abstractParser
+ inherit abstractParser
  def brand = "digitStringParser"
  method parse(in) {
    
@@ -249,7 +249,7 @@ class digitStringParser {
 
 
 class sequentialParser(left, right) { 
- inherits abstractParser
+ inherit abstractParser
  def brand = "sequentialParser"
  method parse(in) {
     def leftResult = left.parse(in)
@@ -263,7 +263,7 @@ class sequentialParser(left, right) {
 
 
 class optionalParser(subParser) { 
- inherits abstractParser
+ inherit abstractParser
  def brand = "optionalParser"
  method parse(in) {
     return (subParser.parse(in)
@@ -275,7 +275,7 @@ class optionalParser(subParser) {
 
 //match as if SubParser, discard the result
 class dropParser(subParser) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "dropParser"
  method parse(in) {
     def subRes = subParser.parse(in)
@@ -287,7 +287,7 @@ class dropParser(subParser) {
 
 
 class alternativeParser(left, right) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "alternativeParser"
  method parse(in) {
     def leftResult = left.parse(in)
@@ -302,7 +302,7 @@ class alternativeParser(left, right) {
 //succeeds if both left & right succeed; returns LEFT parse
 //e.g. both(identifier,not(reservedIdentifiers)) -- except that's wrong!
 class bothParser(left, right) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "bothParser"
  method parse(in) {
     def leftResult = left.parse(in)
@@ -317,7 +317,7 @@ class bothParser(left, right) {
 
 
 class repetitionParser(subParser) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "repetitionParser"
  method parse(in) {
    var current := in
@@ -340,7 +340,7 @@ class repetitionParser(subParser) {
 
 
 class proxyParser(proxyBlock) { 
- inherits abstractParser
+ inherit abstractParser
  def brand = "proxyParser"
  var subParser := "no parser installed"
  var needToInitialiseSubParser := true
@@ -374,7 +374,7 @@ class proxyParser(proxyBlock) {
 
 
 class wrappingProxyParser(proxyBlock, string) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "wrappingProxyParser"
  var subParser := "no parser installed"
  var needToInitialiseSubParser := true
@@ -398,7 +398,7 @@ class wrappingProxyParser(proxyBlock, string) {
 
 // get at least one whitespace
 class atEndParser { 
- inherits abstractParser
+ inherit abstractParser
  def brand = "atEndParser"
  method parse(in) {
    if (in.atEnd) then {
@@ -413,7 +413,7 @@ class atEndParser {
 
 // succeeds when subparser fails; never consumes input if succeeds
 class notParser(subParser) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "notParser"
  method parse(in) {
     def result = subParser.parse(in)
@@ -427,7 +427,7 @@ class notParser(subParser) {
 
 
 class guardParser(subParser, guardBlock) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "guardParser"
  method parse(in) {
     def result = subParser.parse(in)
@@ -441,7 +441,7 @@ class guardParser(subParser, guardBlock) {
 
 
 class successParser {
- inherits abstractParser
+ inherit abstractParser
  def brand = "successParser"
  method parse(in) {return parseSuccess(in,"!!success!!")}
 
@@ -450,7 +450,7 @@ class successParser {
 
 // puts tag into output
 class tagParser(tagx : String) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "tagParser"
  method parse(in) {return parseSuccess(in, tagx)}
 
@@ -458,7 +458,7 @@ class tagParser(tagx : String) {
 
 // puts tagx around start and end of parse
 class phraseParser(tagx: String, subParser) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "phraseParser"
  method parse(in) {
     def result = subParser.parse(in)
@@ -473,7 +473,7 @@ class phraseParser(tagx: String, subParser) {
 
 
 class indentationAssertionParser(indent : Number) {
- inherits abstractParser
+ inherit abstractParser
  def brand = "indentationAssertionParser"
  method parse(in) {
    if (in.indentation == indent) 
@@ -485,7 +485,7 @@ class indentationAssertionParser(indent : Number) {
 
 
 class lineBreakParser(direction) { 
- inherits abstractParser
+ inherit abstractParser
  def brand = "lineBreakParser"
  method parse(in) {
 
@@ -1051,7 +1051,7 @@ def methodDeclaration = rule {
                            lBrace ~ innerCodeSequence ~ rBrace }
 def classDeclaration = rule {
         classId ~ identifier ~ dot ~ classHeader ~ methodReturnType ~ whereClause ~ 
-                               lBrace ~ inheritsClause ~ codeSequence ~ rBrace }
+                               lBrace ~ inheritClause ~ codeSequence ~ rBrace }
 
 //def oldClassDeclaration = rule { classId ~ identifier ~ lBrace ~ 
 //                             opt(genericFormals ~ blockFormals ~ arrow) ~ codeSequence ~ rBrace }
@@ -1061,7 +1061,7 @@ def classDeclaration = rule {
 def methodHeader = rule { accessingAssignmentMethodHeader | accessingMethodHeader | assignmentMethodHeader | methodWithArgsHeader | unaryMethodHeader | operatorMethodHeader | prefixMethodHeader  } 
 
 def classHeader = rule { methodWithArgsHeader | unaryMethodHeader }
-def inheritsClause = rule { opt( inheritsId ~ expression ~ semicolon ) }  
+def inheritClause = rule { opt( inheritId ~ expression ~ semicolon ) }  
 
 def unaryMethodHeader = rule { identifier ~ genericFormals } 
 def methodWithArgsHeader = rule { firstArgumentHeader ~ repsep(argumentHeader,opt(ws)) }
@@ -1214,7 +1214,7 @@ def blockLiteral = rule { lBrace ~ opt( (matchBinding | blockFormals) ~ arrow)
                                  ~ innerCodeSequence ~ rBrace }
 def selfLiteral = symbol "self" 
 def numberLiteral = trim(digitStringParser)
-def objectLiteral = rule { objectId ~ lBrace ~ inheritsClause ~ codeSequence ~ rBrace }
+def objectLiteral = rule { objectId ~ lBrace ~ inheritClause ~ codeSequence ~ rBrace }
 
 //these are *not* in the spec - EELCO 
 def tupleLiteral = rule { lBrack ~ repsep( expression, comma ) ~ rBrack }
@@ -1267,7 +1267,7 @@ def identifier = rule { guard(identifierString, { s -> ! parse(s) with( reserved
 // anything in this list needs to be in reservedIdentifier below (or it won't do what you want)
 def superId = symbol "super" 
 def extendsId = symbol "extends"
-def inheritsId = symbol "inherits"
+def inheritId = symbol "inherit"
 def classId = symbol "class" 
 def objectId = symbol "object" 
 def typeId = symbol "type" 
@@ -1281,7 +1281,7 @@ def returnId = symbol "return"
 //where is OUTER??? - EELCO July 25
 
 //kernan
-def reservedIdentifier = rule {selfLiteral | superId | extendsId | inheritsId | classId | objectId | typeId | whereId | returnId | defId | varId | methodId | prefixId | interfaceId } // more to come
+def reservedIdentifier = rule {selfLiteral | superId | extendsId | inheritId | classId | objectId | typeId | whereId | returnId | defId | varId | methodId | prefixId | interfaceId } // more to come
 
 def reservedOp = rule {assign | equals | dot | arrow | colon | semicolon}  // this is not quite right
 
@@ -1877,15 +1877,15 @@ testProgramOn "class Foo \{ -> a; b; c;  \}" wrongly "015k"
 testProgramOn "class Foo \{ a : <A>, b : <B> -> a; b; c;  \}" wrongly "015l"
 testProgramOn "class Foo \{ -> <A> a : A, b : B  a; b; c;  \}" wrongly "015m"
 
-testProgramOn "class Foo \{ inherits Foo; \}" correctly "015ia"
-testProgramOn "class Foo \{ inherits Foo; a; b; c \}" correctly "015ib"
-testProgramOn "class Foo \{ inherits Foo(3,4); method a \{\}; method b \{\}; method c \{\}\}" correctly "015ib"
-testProgramOn "class Foo \{ inherits Foo(3,4); def x = 0; var x := 19; a; b; c \}" correctly "015ic"
-testProgramOn "class Foo(a,b) \{ inherits Foo<X>(4); a; b; c;  \}" correctly "015id"
-testProgramOn "class Foo(a : A, b : B) \{ inherits goobles; a; b; c;  \}" correctly "015ie"
-testProgramOn "class Foo<A>(a : A, b : B) new(a : A, b : B) \{ inherits OttDtraid; a; b; c;  \}" correctly "015if"
-testProgramOn "class Foo<A, B>(a : A, b : B) \{ inherits Foo(2) new(4); a; b; c;  \}" correctly "015ig"
-testProgramOn "class Foo \{ inherits; a; b; c \}" wrongly "015ih"
+testProgramOn "class Foo \{ inherit Foo; \}" correctly "015ia"
+testProgramOn "class Foo \{ inherit Foo; a; b; c \}" correctly "015ib"
+testProgramOn "class Foo \{ inherit Foo(3,4); method a \{\}; method b \{\}; method c \{\}\}" correctly "015ib"
+testProgramOn "class Foo \{ inherit Foo(3,4); def x = 0; var x := 19; a; b; c \}" correctly "015ic"
+testProgramOn "class Foo(a,b) \{ inherit Foo<X>(4); a; b; c;  \}" correctly "015id"
+testProgramOn "class Foo(a : A, b : B) \{ inherit goobles; a; b; c;  \}" correctly "015ie"
+testProgramOn "class Foo<A>(a : A, b : B) new(a : A, b : B) \{ inherit OttDtraid; a; b; c;  \}" correctly "015if"
+testProgramOn "class Foo<A, B>(a : A, b : B) \{ inherit Foo(2) new(4); a; b; c;  \}" correctly "015ig"
+testProgramOn "class Foo \{ inherit; a; b; c \}" wrongly "015ih"
 
 testProgramOn "3+4.i" correctly "015z"
 test (expression) on "" wrongly "015zz"
