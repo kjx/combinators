@@ -42,16 +42,21 @@ method test(parser : Parser) on(s : String) correctly(comment : String) {
   def res = parser.parse(stringInputStream(s,1))
   if (res.succeeded) 
     then {if (printPassedTests) then {print  ("------: " ++ comment ++ " " ++  res.result)}  else {print "."}}
-    else {if (!printPassedTests) then {print ""}
-           print  ("FAILED: " ++ comment ++ " " ++  s)} 
+    else {
+       if (!printPassedTests) 
+          then {print ""}
+       print  ("FAILED: " ++ comment ++ " " ++  s)
+     }
 }
 
 method test(parser : Parser) on(s : String) wrongly(comment : String) {
   def rv = parser.parse(stringInputStream(s,1)).succeeded
   if  (!rv) 
     then {if (printPassedTests) then {print  ("------: " ++ comment ++ " " ++  s)}  else {print "."}}
-    else {if (!printPassedTests) then {print ""}
-           print  ("FAILED: " ++ comment ++ " " ++  s)} 
+    else {
+       if (!printPassedTests) then {print ""}
+       print  ("FAILED: " ++ comment ++ " " ++  s)
+    } 
 }
 
 
