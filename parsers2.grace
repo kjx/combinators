@@ -587,10 +587,11 @@ class exports {
         else {Error.raise "Tricotomy failure"}
 
 
-    match (actualDirection) 
-       case { _ : direction -> return parseSuccess(in.rest(1), "<<{direction}>>\n" ) }
-       case { _ -> return parseFailure "looking for a LineBreak-{direction}, got {actualDirection} at {in.position}"
+    if (direction.match(actualDirection))  then {
+         return parseSuccess(in.rest(1), "<<{direction}>>\n" ) 
        }
+
+    return parseFailure "looking for a LineBreak-{direction}, got {actualDirection} at {in.position}"
 
     Error.raise "Shouldn't happen"
    }
