@@ -1,7 +1,30 @@
-dialect "parserTestDialect"
+import "grammar" as grammar
+inherit grammar.exports
+  alias baseAbstractParser = abstractParser
+
+//we are family!!
+class abstractParser {
+  inherit baseAbstractParser
+
+  method ~~(other) {snocParser(self,other)}
+}
 
 import "collections" as c
 inherit c.abbreviations
+
+def printPassedTests = false
+
+method test(parser : Parser) on(s : String) correctly(comment : String) {
+  def res = parser.parse(stringInputStream(s,1))
+  if (res.succeeded) 
+    then {if (printPassedTests) then {print  ("------: " ++ comment ++ " " ++  res.result)}  else {print "."}}
+    else {
+       if (!printPassedTests) 
+          then {print ""}
+       print  ("FAILED: " ++ comment ++ " " ++  s)
+     }
+}
+
 
 test (digitStringParser) on "123" correctly "1"
 

@@ -174,7 +174,6 @@ class exports {
    def brand = "abstractParser"
    method parse(in) { }
 
-   method ~~(other) {snocParser(self,other)}
    method ~(other) {sequentialParser(self,other)}
    method |(other) {alternativeParser(self,other)}
   }
