@@ -25,6 +25,9 @@ trait equalityTrait {
   method ==(other) { abstract }
   method !=(other) { ! (self == other) }  //KERNAN
 }
+
+method blerg { def x = 3 }
+def done = blerg
 //kjx end hacks
 
 
@@ -34,23 +37,23 @@ method abstract {
     SubobjectResponsibility.raise "abstract method not overriden by subobject"
 }
 
-type Block0[[R]] = type {
+type Block0[[R]] = interface {
     apply -> R
 }
 
-type Block1[[T,R]] = type {
+type Block1[[T,R]] = interface {
     apply(a:T) -> R
 }
 
-type Block2[[S,T,R]] = type {
+type Block2[[S,T,R]] = interface {
     apply(a:S, b:T) -> R
 }
 
 type Self = Unknown     // becuase it's not yet in the language
-type Object = type { }  //KERNAN
+type Object = interface { }  //KERNAN
 
 
-type Iterable[[T]] = Object & type {
+type Iterable[[T]] = Object & interface {
     iterator -> Iterator[[T]]
         // the iterator on which I am based
     isEmpty -> Boolean
@@ -71,18 +74,18 @@ type Iterable[[T]] = Object & type {
         // returns a new iterator that yields those of my elements for which condition holds 
 }
 
-type Expandable[[T]] = Iterable[[T]] & type {
+type Expandable[[T]] = Iterable[[T]] & interface {
     //add(*x: T) -> Self
     addAll(xs: Iterable[[T]]) -> Self
 }
 
-type Collection[[T]] = Iterable[[T]] & type {
+type Collection[[T]] = Iterable[[T]] & interface {
     asList -> List[[T]]
     asSequence -> Sequence[[T]]
     asSet -> Set[[T]]
 }
 
-type Enumerable[[T]] = Collection[[T]] & type {
+type Enumerable[[T]] = Collection[[T]] & interface {
     values -> Collection[[T]]
     asDictionary -> Dictionary[[Number,T]]
     keysAndValuesDo(action:Block2[[Number,T,Object]]) -> Done
@@ -92,7 +95,7 @@ type Enumerable[[T]] = Collection[[T]] & type {
     sorted -> Self
 }
 
-type Sequence[[T]] = Enumerable[[T]] & type {
+type Sequence[[T]] = Enumerable[[T]] & interface {
     size -> Number
     at(n:Number) -> T
     // [ n:Number ] -> T            //kernan
@@ -109,7 +112,7 @@ type Sequence[[T]] = Enumerable[[T]] & type {
     reversed -> Sequence[[T]]
 }
 
-type List[[T]] = Sequence[[T]] & type {
+type List[[T]] = Sequence[[T]] & interface {
     // add(*x: T) -> List[[T]]
     addAll(xs: Iterable[[T]]) -> List[[T]]
     // addFirst(*x: T) -> List[[T]]
@@ -134,7 +137,7 @@ type List[[T]] = Sequence[[T]] & type {
     reversed -> List[[T]]
 }
 
-type Set[[T]] = Collection[[T]] & type {
+type Set[[T]] = Collection[[T]] & interface {
     size -> Number
     // add(*elements:T) -> Self
     addAll(elements: Iterable[[T]]) -> Self
@@ -153,7 +156,7 @@ type Set[[T]] = Collection[[T]] & type {
     into(existing: Expandable[[Unknown]]) -> Collection[[Unknown]]
 }
 
-type Dictionary[[K,T]] = Collection[[T]] & type {
+type Dictionary[[K,T]] = Collection[[T]] & interface {
     size -> Number
     containsKey(k:K) -> Boolean
     containsValue(v:T) -> Boolean
@@ -180,25 +183,25 @@ type Dictionary[[K,T]] = Collection[[T]] & type {
     asDictionary -> Dictionary[[K, T]]
 }
 
-type Iterator[[T]] = type {
+type Iterator[[T]] = interface {
     hasNext -> Boolean
     next -> T
 }
 
-type CollectionFactory[[T]] = type {
+type CollectionFactory[[T]] = interface {
     withAll (elts: Iterable[[T]]) -> Collection[[T]]
     // with (*elts:Object) -> Collection[[T]]
     empty -> Collection[[T]]
 }
 
-type EmptyCollectionFactory[[T]] = type {
+type EmptyCollectionFactory[[T]] = interface {
     empty -> Collection[[T]]
 }
 
 trait collectionFactoryTrait[[T]] {
     method withAll(elts: Iterable[[T]]) -> Collection[[T]] { abstract }
     //method with(*a:T) -> Unknown { self.withAll(a) }
-    method empty -> Unknown { self.with() }
+    method empty -> Unknown { self.withAll [] }
 }
 
 class lazySequenceOver[[T,R]](source: Iterable[[T]])
@@ -1678,4 +1681,16 @@ class range {
             }
         }
     }
+}
+
+//probably should all be confidential! 
+class abbreviations { 
+   method list { outer.list.empty } 
+   method list(a) { outer.list.withAll [a] }
+   method list(a,b) { outer.list.withAll [a,b] }
+   method list(a,b,c) { outer.list.withAll [a,b,c] }
+   method dictionary { outer.dictionary.empty }
+   method key(k) value(v) { outer.key(k) value(v) }
+   method pair(k,v) { outer.key(k) value(v) }
+   method empty { emptySequence }
 }

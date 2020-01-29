@@ -94,7 +94,7 @@ class exports {
      for (position .. endPosition) do { i : Number ->   
          result := result ++ string.at(i)
      }
-     return result
+     result
    }
 
    method rest(n : Number)  {
@@ -106,7 +106,7 @@ class exports {
        }
    }
 
-   method atEnd  {return position > string.size}
+   method atEnd  {position > string.size}
 
    method indentation {
      var cursor := position - 1
@@ -120,7 +120,7 @@ class exports {
 
      if ((cursor + result) > string.size) then {return 0} // lots of spaces then end
 
-     return result
+     result //return
    }
 
   }
@@ -151,18 +151,18 @@ class exports {
    def brand = "parseSuccess"
    def next is public  = next' 
    def result is public = result'
-   method succeeded { return true }
+   method succeeded { true } //return
    method resultUnlessFailed (failBlock : Block) {
-     return self
+     self //return
    }
   }
 
   class parseFailure(message') {
    def brand = "parseFailure" 
    def message is public = message'
-   method succeeded { return false }
+   method succeeded { false } //return
    method resultUnlessFailed (failBlock : Block) { 
-     return failBlock.apply(self)
+     failBlock.apply(self) //return
    }
   }
 
@@ -241,7 +241,7 @@ class exports {
           return parseSuccess(in.rest(1), current ) }
        }
 
-     return parseFailure(
+     parseFailure( //return
           "expected \"{charSet}\" got {current} at {in.position}")
    }
   }
@@ -257,7 +257,7 @@ class exports {
         if (c == current) then {
           return parseFailure("expected NOT \"{charSet}\" got {current} at {in.position}") }
        }
-     return parseSuccess(in.rest(1), current ) 
+     parseSuccess(in.rest(1), current )  //return
    }
   }
 
@@ -291,7 +291,7 @@ class exports {
           // print "chlr: <{char}>  current.atEnd <{current.atEnd}>"
      }
 
-     return parseSuccess(current, id)
+     parseSuccess(current, id) //return
    }
 
   }
@@ -326,7 +326,7 @@ class exports {
           char := current.take(1)
      }
 
-     return parseSuccess(current, id)
+     parseSuccess(current, id) //return
    }
 
   }
@@ -341,7 +341,7 @@ class exports {
             .resultUnlessFailed {f -> return f}
       def rightResult = right.parse(leftResult.next)
             .resultUnlessFailed {f -> return f}
-      return parseSuccess(rightResult.next, 
+      parseSuccess(rightResult.next,  //return
              leftResult.result ++ rightResult.result)
    }
   }
@@ -351,7 +351,7 @@ class exports {
    inherit abstractParser
    def brand = "optionalParser"
    method parse(in) {
-      return (subParser.parse(in)
+       (subParser.parse(in) //return
             .resultUnlessFailed {f -> 
                  return parseSuccess(in, "")})
   }
@@ -365,7 +365,7 @@ class exports {
    method parse(in) {
       def subRes = subParser.parse(in)
             .resultUnlessFailed {f -> return f}
-      return parseSuccess(subRes.next, "")
+      parseSuccess(subRes.next, "") //return
    }
 
   }
@@ -378,7 +378,7 @@ class exports {
       def leftResult = left.parse(in)
       if (leftResult.succeeded) then {
         return leftResult }
-      return right.parse(in)
+      right.parse(in) //return
    }
 
   }
@@ -394,7 +394,7 @@ class exports {
       if (!leftResult.succeeded) then {return leftResult}
       def rightResult = right.parse(in)
       if (!rightResult.succeeded) then {return rightResult}
-      return leftResult
+      leftResult //return
    }
 
   }
@@ -417,7 +417,7 @@ class exports {
           res := subParser.parse(current)
      }
 
-     return parseSuccess(current, id)
+     parseSuccess(current, id) //return
    }
 
   }
@@ -451,7 +451,7 @@ class exports {
 
     currentIndentation := previousIndentation
 
-    return result
+    result //return
    }
 
   }
@@ -474,7 +474,7 @@ class exports {
     def result = subParser.parse(in)
     if (!result.succeeded) then {return result}
 
-    return parseSuccess(result.next, "[{string}{result.result}]")
+    parseSuccess(result.next, "[{string}{result.result}]") //return
    }
 
   }
@@ -519,7 +519,7 @@ class exports {
 
       if (!result.succeeded) then {return result}
       if (guardBlock.apply(result.result)) then {return result}
-      return  parseFailure("Guard failure at {in.position}")
+      parseFailure("Guard failure at {in.position}") //return
    }
 
   }
@@ -528,7 +528,7 @@ class exports {
   class successParser {
    inherit abstractParser
    def brand = "successParser"
-   method parse(in) {return parseSuccess(in,"!!success!!")}
+   method parse(in) {parseSuccess(in,"!!success!!")} //return
 
   }
 
@@ -537,7 +537,7 @@ class exports {
   class tagParser(tagx : String) {
    inherit abstractParser
    def brand = "tagParser"
-   method parse(in) {return parseSuccess(in, tagx)}
+   method parse(in) {parseSuccess(in, tagx)} //return
 
   }
 
@@ -550,7 +550,7 @@ class exports {
 
       if (!result.succeeded) then {return result}
 
-      return parseSuccess(result.next,
+      parseSuccess(result.next, //return
                 "<" ++ tagx ++ " " ++ result.result ++ " " ++ tagx ++ ">" )
    }
 
@@ -591,9 +591,10 @@ class exports {
          return parseSuccess(in.rest(1), "<<{direction}>>\n" ) 
        }
 
-    return parseFailure "looking for a LineBreak-{direction}, got {actualDirection} at {in.position}"
+    parseFailure "looking for a LineBreak-{direction}, got {actualDirection} at {in.position}" 
 
-    Error.raise "Shouldn't happen"
+
+    // Error.raise "Shouldn't happen"
    }
   }
 
@@ -651,7 +652,7 @@ class exports {
     if (c.size == 0) then {return false} //is bad. is a hack. works.
     if (c.size != 1) then {print "isletter string {c} too long"}
     //  assert {c.size == 1} complaint "isletter string too long" 
-    return (((c >= "A") && (c <= "Z")) 
+    (((c >= "A") && (c <= "Z"))  //return
            || ((c >= "a") && (c <= "z")))
   }
 
@@ -659,7 +660,7 @@ class exports {
     // print "callxd isdigit({c})"
     //  assert {c.size == 1} complaint "isdigit string too long" 
     if (c.size == 0) then {return false} //is bad. is a hack. works. 
-    return ((c >= "0") && (c <= "9")) 
+    ((c >= "0") && (c <= "9"))  //return
   }
 
   print "Got Parsers"
