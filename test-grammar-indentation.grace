@@ -1,7 +1,8 @@
 dialect "parserTestDialect"
 
 currentIndentation := 1
-test (codeSequence ~ identifier) on " var x := 4\n foo\n def b = 4\n bar\n baz" correctly "013a2"
+test (codeSequence) on " var x := 4\n foo\n def b = 4\n bar\n baz\nbarf" correctly "013a2"
+test (codeSequence ~ end) on " var x := 4\n foo\n def b = 4\n bar\n baz\nbarf" wrongly "013b2"
 test (codeSequence ~ identifier) on " var x := 4\n foo\n 3+4\n def b = 4\n bar\n 1+2\n baz\n" correctly "013a3"
 currentIndentation := 0
 
