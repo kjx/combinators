@@ -174,7 +174,6 @@ test "hello(1)\n  world(2)\n   world(3)"
 
 
 print "line ========================================"
-printPassedTests := true
 
 test( lineAssertionParser(0) ) on ""
 test((token "x") ~ lineAssertionParser(1) ) on "xyz"
@@ -187,4 +186,96 @@ test(wsn ~ (token "x") ~ lineAssertionParser(2) ) on "\nx"
 test(wsn ~ (token "x") ~ lineAssertionParser(3) ) on " \n \nx"
 test(wsn ~ (token "x") ~ wsn ~ (token "y") ~ lineAssertionParser(5) ) on "\n\nx\n\ny"
 test(wsn ~ (token "x") ~ wsn ~ (token "y") ~ lineAssertionParser(1) ) on " x y"
+
+
 print "lout ========================================"
+
+test( token "x" ~ token "y" ~ token "z" ~ end ) on "xyz"
+test( token "x" ~ tab( token "y" ~ token "z" ~ end )) on "xyz"
+test( token "x" ~ tab( token "y") ~ token "z" ~ end ) on "xyz"
+test( tabAssertionParser(-1,-1) ~
+      token "x" ~ tab( token "y") ~ token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "xyz"
+test( tabAssertionParser(-1,-1) ~
+      token "x" ~ tab( tabAssertionParser(0,1) ~ token "y") ~
+      token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "xyz"
+test( tabAssertionParser(-1,-1) ~
+      token "x" ~ token "y" ~ tab( tabAssertionParser(0,1)) ~
+      token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "xyz"
+
+test( token "   " ~ 
+      token "x" ~ token "y" ~ 
+      token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "   xyz"
+test( tabAssertionParser(-1,-1) ~ token "   " ~
+      token "x" ~ tab( tabAssertionParser(3,1) ~ token "y") ~
+      token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "   xyz"
+test( tabAssertionParser(-1,-1) ~ token "   " ~
+      token "x" ~ token "y" ~ tab( tabAssertionParser(3,1)) ~
+      token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "   xyz"
+test( tabAssertionParser(-1,-1) ~ tab( tabAssertionParser(3,1)) ~
+      token "   " ~ 
+      token "x" ~ token "y" ~ 
+      token "z" ~ end ~
+      tabAssertionParser(-1,-1)) on "   xyz"
+
+test( token "aa" ~ token "\n " ~ token "b" ~ token "\n " ~ token "c" ~
+       end ) on "aa\n b\n c"
+test( token "aa" ~ token "\n " ~ tabAssertionParser(-1,-1) ~
+       token "b" ~ token "\n " ~ token "c" ~ tabAssertionParser(-1,-1) ~
+       end ) on "aa\n b\n c"
+test( token "aa" ~ tab( token "\n " ~ tabAssertionParser(0,1) ~
+       token "b" ~ token "\n " ~ token "c" ~ tabAssertionParser(0,1) ~
+       end ) ) on "aa\n b\n c"
+test( token "aa" ~ tab( token "\n " ~ tabAssertionParser(0,1) ~
+       token "b" ~ tab( token "\n " ~ token "c" ~ tabAssertionParser(1,2)) ~
+       end ) ) on "aa\n b\n c"
+
+test( offside ~ token "o" ~ end ) on " o"
+test( offside ~ token "o" ~ end ) on "     o"
+test( offside ~ token "o" ~ end ) on "\n o"
+test( offside ~ token "o" ~ end ) on " \no"
+test( offside ~ token "o" ~ end ) on "\n \n o"
+test( offside ~ token "o" ~ end ) on "\n   \n \n     \n\n o"
+test( offside ~ token "o" ~ end ) on "\n \n \n     o"
+test( offside ~ token "o" ~ end ) on "     \n\no"
+
+
+
+
+def semiNL = ( semicolon | newline )
+def abcd = opt(offside) ~ token "a" ~
+             tab( offside ~ token "b" ~ offside ~ token "c" ) ~
+             semiNL ~ opt(offside) ~ token "d"
+
+test (offside) on " a b c\nd"
+test (opt(offside)) on " a b c\nd"
+test (opt(offside)) on "a b c\nd"
+test (abcd) on "a b c\nd"
+test (abcd) on "a b c;d"
+test (abcd) on "a\n  b\n  c\nd"
+test (abcd) on "  a\n    b\n    c\nd"
+test (not(abcd)) on "a b c d"
+test (not(abcd)) on "a b\n c d"
+test (not(abcd)) on "a b c d"
+test (not(abcd)) on "a\n\nb c d"
+
+
+printPassedTests := true
+
+
+
+def evil1 = "a\nb\nc d"
+test (not(abcd)) on (evil1)
+test (opt(offside)) on (evil1)
+test (opt(offside) ~ token "a") on (evil1)
+test (opt(offside) ~ token "a" ~ offside ~ token "b") on (evil1)
+test (not(opt(offside) ~ token "a" ~ offside ~ token "b" ~ semicolon)) on (evil1)
+test ((opt(offside) ~ token "a" ~ offside ~ token "b" ~ semiNL)) on (evil1)
+test (opt(offside) ~ token "a" ~ offside ~ token "b" ~ offside) on (evil1)
+test (opt(offside) ~ token "a" ~ offside ~ token "b" ~ offside ~ token "c") on (evil1)
+

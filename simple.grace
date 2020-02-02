@@ -46,6 +46,7 @@ class exports {
   //once we get it working, then we work out somewhere
   //better to put this
   var tabStop := -1
+  var tabLine := -1
 
   class tabParser(subParser) {
    inherit abstractParser
@@ -54,10 +55,15 @@ class exports {
      var current := in
 
      def oldTabStop = tabStop
+     def oldTabLine = tabLine
+
+     tabStop := in.indentation
+     tabLine := in.line
 
      def res = subParser.parse(in)
 
      tabStop := oldTabStop
+     tabLine := oldTabLine
      
      res
    }
@@ -65,21 +71,32 @@ class exports {
   }
 
 
-  class offsideWhitespace {
+  class offsideWhitespaceParser {
+   inherit abstractParser 
+   def brand = "offsideWhitespaceParser"
+   method parse(in) {
      var current := in
 
-     while {(current.take(1) == " ") || (current.take(1) == "\n")} do {
-       //catch is: current line's indentation will (presumanly) be < tabStop
-
-       while {current.take(1) == " "} 
+     while {(current.take(1) == " ") ||
+             (current.take(1) == "\n") ||
+             (current.take(2) == "//")} do {
+       //print "outer while {in.position} *{current.take(1)}*"
+       //def c1s = (current.take(1) == " ")
+       //def c1n = (current.take(1) == "\n" )
+       //def cl = (current.line == tabLine)
+       //def ci = (current.indentation > tabStop)
+       //print "{c1s} {c1n} {cl} {ci}"
+       //print ((c1s || c1n) && (cl || ci))
+       //print "cindent={current.indentation} ts={tabStop}"
+       while {((current.take(1) == " ") || (current.take(1) == "\n" )) &&
+               ((current.line == tabLine) || (current.indentation >= tabStop))} 
          do {current := current.rest(1)}
        if (current.take(2) == "//")
          then {
            current := current.rest(2)
            while {current.take(1) != "\n"} 
              do {current := current.rest(1)}
-
-           current := current.take(1)
+           current := current.rest(1)
          }
      }
 
@@ -89,11 +106,23 @@ class exports {
         return parseFailure(
           "expected w/s got {in.take(5)} at {in.position}")
      }
- }
-  
+   }
+  }
 
- 
+  class tabAssertionParser(xTab,xLine) {
+   inherit abstractParser
+   def brand = "tabAssertionParser"
+   method parse(in) {
+     if ((tabStop == xTab) && (tabLine == xLine ))
+      then {return parseSuccess(in,"")}
+      else { print  "***Asserted tab=={xTab}@{xLine}, actual=={tabStop}@{tabLine}"
+             return parseFailure "***Asserted tab=={xTab}@{xLine}, actual=={tabStop}@{tabLine}"}
+   }
+  }
 
+
+  method tab(p) {tabParser(p)}
+  method offside {offsideWhitespaceParser}
 
 }
 
