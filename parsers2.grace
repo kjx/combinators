@@ -84,8 +84,9 @@ class exports {
 
 
   class stringInputStream(string : String, position' : Number) {
-   def brand = "stringInputStrea"
+   def brand = "stringInputStream"
    def position : Number is readable = position'
+   method asString {"{brand}:pos={position}"}
 
    method take(n : Number) -> String {
      var result := ""
@@ -123,8 +124,9 @@ class exports {
      result //return
    }
 
-  }
 
+
+  }
   ////////////////////////////////////////////////////////////
   // parse results
 
@@ -206,7 +208,7 @@ class exports {
    method parse(in) {
      var current := in
 
-     while {(current.take(1) == " ") || (current.take(2) == "\\")} do {
+     while {(current.take(1) == " ") || (current.take(2) == "//")} do {
        while {current.take(1) == " "} 
          do {current := current.rest(1)}
        if (current.take(2) == "//")
@@ -214,7 +216,7 @@ class exports {
            current := current.rest(2)
            while {current.take(1) != "\n"} 
              do {current := current.rest(1)}
-           current := current.take(1)
+           current := current.rest(1)
          }
      }
 
@@ -567,6 +569,7 @@ class exports {
              return parseFailure "Asserted indent=={indent}, actual indentation=={in.indentation}"}
    }
   }
+
 
 
   class lineBreakParser(direction) { 

@@ -118,6 +118,26 @@ test {whiteSpaceParser.parse(strm2).succeeded}
 test {whiteSpaceParser.parse(strm2).next.position}
     expecting(4)
     comment "whiteSpaceParser - eating 4"
+
+//mistakenly though whiteSpaceParser did \n
+//it doesn't it just does spaces and comments to eol
+test (whiteSpaceParser ~ token "x") on " x"  correctly "ws1"
+test (whiteSpaceParser ~ token "x") on "     x"  correctly "ws2"
+test (whiteSpaceParser ~ token "x") on " x"  correctly "ws3"
+test (whiteSpaceParser ~ token "x") on "          x"  correctly "ws4"
+test (whiteSpaceParser ~ token "x") on "     xiuyaeriu"  correctly "ws5"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on " x y"  correctly "ws6"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on "    x      y"  correctly "ws7"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on "  x       yzzzz"  correctly "ws8"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on " x y"  correctly "ws9"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on "//foo\n  x  y"  correctly "ws10"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on "   //foo\nx   y    "  correctly "ws11"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on " x  //foo\n//foo\n    y"  correctly "ws12"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on "//foo\n x  //foo\n   y"  correctly "ws13"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on " x//foo\n //foo\ny"  correctly "ws14"
+test (whiteSpaceParser ~ token "x" ~ whiteSpaceParser ~ token "y") on "//foo\n//foo\n//foo\n x y"  correctly "ws15"
+
+
 test {isletter "A"} expecting (true) comment "isletter A"
 test {isletter "F"} expecting (true) comment "isletter F"
 test {isletter "Z"} expecting (true) comment "isletter Z"
