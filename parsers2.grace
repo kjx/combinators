@@ -125,6 +125,19 @@ class exports {
    }
 
 
+   //this is basically evil O(N^2)
+   //simplest thing that could possibly work...
+   method line {
+     if (string.size == 0) then {return 0}
+
+     var cursor := 1
+     var res := 1
+     while {cursor < position} do {
+       if (string.at(cursor) == "\n") then {res := res + 1}
+       cursor := cursor + 1
+     }
+     res
+   }
 
   }
   ////////////////////////////////////////////////////////////
@@ -570,6 +583,16 @@ class exports {
    }
   }
 
+  class lineAssertionParser(expected : Number) {
+   inherit abstractParser
+   def brand = "lineAssertionParser"
+   method parse(in) {
+     if (in.line == expected)
+      then {return parseSuccess(in,"")}
+      else { print  "***Asserted line=={expected}, actual line=={in.line}"
+             return parseFailure "Asserted line=={expected}, actual line=={in.line}"}
+   }
+  }
 
 
   class lineBreakParser(direction) { 
