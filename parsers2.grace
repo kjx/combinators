@@ -124,7 +124,6 @@ class exports {
      result //return
    }
 
-
    //this is basically evil O(N^2)
    //simplest thing that could possibly work...
    method line {
@@ -138,6 +137,17 @@ class exports {
      }
      res
    }
+
+
+   method column {
+     var cursor := position - 1
+     while {(cursor > 0).andAlso {string.at(cursor) != "\n"}}
+       do {cursor := cursor - 1}
+     // now cursor is the char before the first in the line.
+     cursor := cursor + 1
+     cursor
+  }
+
 
   }
   ////////////////////////////////////////////////////////////
