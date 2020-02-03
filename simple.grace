@@ -213,7 +213,7 @@ class exports {
   }
 
 
-
+  method tag(p) {phraseParser("",tabParser(p))}
   method tab(p) {tabParser(p)}
   method offside {offsideWhitespaceParser}
   method onside  {onsideParser}

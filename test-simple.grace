@@ -338,8 +338,8 @@ def codeSequence2 = rule { repdel((expression2 | empty), ( semicolon | lineBreak
 
 def expression2 = rule { opt(wso) ~ (requestWithArgs2 | numberLiteral) ~ opt(wso)}
 def requestWithArgs2 = rule { rep1sep(requestArgumentClause2,opt(wso)) }
-def requestArgumentClause2 = rule { tab( identifierString ~ opt(wso) ~ argumentsInParens2 ) }
-def argumentsInParens2 = rule { lParen ~ tab( rep1sep(drop(opt(wso)) ~ expression2, comma)) ~ rParen  }  
+def requestArgumentClause2 = rule { tag( identifierString ~ opt(wso) ~ argumentsInParens2 ) }
+def argumentsInParens2 = rule { lParen ~ tag( rep1sep(drop(opt(wso)) ~ expression2, comma)) ~ rParen  }  
 
 
 method test2(s:String) {
@@ -365,6 +365,7 @@ test(numberLiteral ~ wso ~ numberLiteral ~ end) on "1\n 7"
 test(not(expression ~ end)) on "1\n(1)"
 
 printPassedTests := true
+
 test(requestArgumentClause2) on "hello\n (1)"
 test(expression2) on "hello\n (1)"
 test(codeSequence2) on "hello\n (1)"
@@ -404,5 +405,12 @@ test2 "hello(1)\nhello(2)\nhello(3)"
 test2 "hello(1)\nhello(2)\nhello(3)"
 test2 "  hello(1)\n  hello(2)\n  hello(3)"
 
-test2 "hello(1)\n  world(2)\nhello(3)" // not sure why this one works
+test2 "hello(1)\n  world(2)\nhello(3)" 
 
+
+test2 "hello(1)"
+test2 "hello(\n         1);\nhello(2)"
+test(not(program2)) on "hello(\n 1)"
+test2 "hello( 1,\n  2,\n  3,\n  4)"
+test2 "hello( 1,\n  2,3,\n  4)"
+test2 "hello( 1,\n  2,3,\n  4); foo(5)"
