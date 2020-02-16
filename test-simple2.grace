@@ -199,3 +199,5 @@ test(not(program2)) on "     hello(\n          1,\n 2,\n          3)"
 test2 "hello( 1,\n  2,\n  3,\n  4)"
 test2 "hello( 1,\n  2,3,\n  4)"
 test2 "hello( 1,\n  2,3,\n  4); foo(5)"
+
+test2 "  hello(1,2)\n    world(3,4)\ngoodbye(1,2)"
