@@ -48,6 +48,11 @@ class exports {
   var tabStop := -1
   var tabLine := -1
 
+  method resetTabstops {
+    tabStop := -1
+    tabLine := 1
+    } 
+
   class tabParser(subParser) {
    inherit abstractParser
    def brand = "tabParser"
@@ -60,10 +65,13 @@ class exports {
      tabStop := in.indentation
      tabLine := in.line
 
+     //print "tabsett {tabStop}@{tabLine}"
      def res = subParser.parse(in)
 
      tabStop := oldTabStop
      tabLine := oldTabLine
+
+     //print "tabundo {tabStop}@{tabLine}"
      
      res
    }
@@ -151,7 +159,8 @@ class exports {
    }
   }
 
-  method portrayOffside(string) {
+  method portray(string) {
+    def portrayParser = onsideParser
     print "warning trashes global tabstops"
     var res := ""
     tabStop := -1
