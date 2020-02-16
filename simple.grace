@@ -143,6 +143,19 @@ class exports {
    }
   }
 
+  class underParser {
+   inherit abstractParser
+   def brand = "underParser"
+   method parse(in) {
+     print "under pos{in.position} {in.column}@{in.line} ind{in.indentation} tab{tabStop}@{tabLine}"
+     if ((in.line == tabLine) ||
+         ((in.line >  tabLine) && (in.column == tabStop)))
+      then {return parseSuccess(in,"")}
+      else {return parseFailure "under!"}
+   }
+  }
+
+
   //always succeed, print stuff
   class debugParser {
    inherit abstractParser
@@ -160,7 +173,7 @@ class exports {
   }
 
   method portray(string) {
-    def portrayParser = onsideParser
+    def portrayParser = underParser ///onsideParser
     print "warning trashes global tabstops"
     var res := ""
     tabStop := -1
@@ -174,15 +187,15 @@ class exports {
                   res := res ++ "T"
                   print "setting tab {tabStop}@{tabLine}" }
            case { " " ->
-                if (onsideParser.parse(in).succeeded)
+                if (portrayParser.parse(in).succeeded)
                    then {res := res ++ "."}
                    else {res := res ++ "_"} }
            case { "\n" ->
-                if (onsideParser.parse(in).succeeded)
+                if (portrayParser.parse(in).succeeded)
                    then {res := res ++ "!.\n"}
                    else {res := res ++ "!_\n"} }
            case { _ ->
-                if (onsideParser.parse(in).succeeded)
+                if (portrayParser.parse(in).succeeded)
                    then {res := res ++ "X"}
                    else {res := res ++ "o"} }
            

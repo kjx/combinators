@@ -282,4 +282,4 @@ print"portrayal========================================"
 portray "a\n  b\n  b\n"
 portray "a\n  T\n    c\n    c\nd     \n          c"
 portray "  a\n    T  t  t\n      c\n    c\nd\n"
-
+portray "   Taa\n   bbb\ncccccc"

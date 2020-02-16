@@ -145,7 +145,7 @@ class exports {
        do {cursor := cursor - 1}
      // now cursor is the char before the first in the line.
      cursor := cursor + 1
-     cursor
+     position - cursor
   }
 
 
