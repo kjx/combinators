@@ -262,9 +262,9 @@ class exports {
   def whereId = symbol "where" 
 
   //kernan
-  def reservedIdentifier = rule {selfLiteral | aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId |  inheritId | isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId | traitId |  typeId |  useId |  varId |  whereId}
+  def reservedIdentifier = rule {selfLiteral | aliasId |  asId |  classId |  defId |  dialectId |  excludeId |  importId | interfaceId |  inheritId | isId |  methodId | objectId | outerId | prefixId |  requiredId |  returnId | traitId |  typeId |  useId |  varId |  whereId}
 
-  //oops deleted interfaceId
+
 
   def reservedOp = rule {assign | equals | dot | arrow | colon | semicolon}  // this is not quite right
 
