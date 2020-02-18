@@ -16,7 +16,7 @@ print("start")
 var passedTests := 0
 var failedTests := 0
 
-def printPassedTests = false
+var printPassedTests := false
 
 method test (block : Block, result : Object, comment : String) {
   def rv = block.apply

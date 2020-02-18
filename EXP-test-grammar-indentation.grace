@@ -1,14 +1,16 @@
 Getting Parsers
 done
 Got Parsers
-Got Parsers
 start
+.
 
 FAILED: 013a2  var x := 4
  foo
  def b = 4
  bar
  baz
+ barf
+.
 
 FAILED: 013a3  var x := 4
  foo
@@ -34,21 +36,10 @@ FAILED: 013a3  var x := 4
 .
 .
 .
-
-FAILED: 101a1x method x1 {foo(3)
-    bar(2)
-    bar(2)
-    foo(4)
-  }
 .
 .
-
-FAILED: 102a1 method x2 {
-foo
-foo
-foo
-}
-
+.
+.
 .
 
 FAILED: 008i11    foo

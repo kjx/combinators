@@ -1,9 +1,12 @@
 dialect "parserTestDialect"
 
+
+test (codeSequence) on "var x := 4\nfoo\ndef b = 4\nbar\nbaz\nbarf" correctly "013a-1"
+
 currentIndentation := 1
-test (codeSequence) on " var x := 4\n foo\n def b = 4\n bar\n baz\nbarf" correctly "013a2"
-test (codeSequence ~ end) on " var x := 4\n foo\n def b = 4\n bar\n baz\nbarf" wrongly "013b2"
-test (codeSequence ~ identifier) on " var x := 4\n foo\n 3+4\n def b = 4\n bar\n 1+2\n baz\n" correctly "013a3"
+test (codeSequence ~ end) on " var x := 4\n foo\n def b = 4\n bar\n baz\n barf" correctly "013a2"
+test (codeSequence ~ end) on        " var x := 4\n foo\n def b = 4\n bar\n baz\nbarf" wrongly "013b2"
+test (codeSequence ~ end) on " var x := 4\n foo\n 3+4\n def b = 4\n bar\n 1+2\n baz\n" correctly "013a3"
 currentIndentation := 0
 
 testProgramOn "method foo \{a;\n b;\n c;\n\}" correctly "X17c1"
@@ -34,15 +37,16 @@ test (expression ~ end) on "call(params[1].value)" wrongly "100z1"
 
 
 testProgramOn "method x1 \{foo(3)\n    bar(2)\n    bar(2)\n    foo(4)\n\}" correctly "101a1"
-testProgramOn "method x1 \{foo(3)\n    bar(2)\n    bar(2)\n    foo(4)\n  \}" wrongly "101a1x"
+testProgramOn "method x1 \{\n  foo(3)\n    bar(2)\n    bar(2)\n    foo(4)\n  \}" correctly "101a1x"
 testProgramOn "method x2 \{foo(3) bar(2) bar(2)\}" correctly "101a2"
 testProgramOn "method x3 \{\n                 foo(3)\n                     bar(2)\n                     bar(2)\n                 foo(4)  \n \}" correctly "101a3"
-testProgramOn "method x2 \{\nfoo\nfoo\nfoo\n}\n" wrongly "102a1"
 
+
+testProgramOn "method x2 \{\nfoo\nfoo\nfoo\n}\n" correctly "102a1"
 
 testProgramOn "foo" correctly "008i1"
-testProgramOn "   foo" wrongly "008i11"
+testProgramOn "   foo" wrongly "008i11"  //FAILS
 testProgramOn "foo;  bar" correctly "008i11a"
-testProgramOn "   foo;  bar" wrongly "008i11b"
-testProgramOn "   foo\n   bar" wrongly "008i12"
+testProgramOn "   foo;  bar" wrongly "008i11b" //FAILS
+testProgramOn "   foo\n   bar" wrongly "008i12" //FAILS
 testProgramOn "foo\nbar" correctly "008i13"
