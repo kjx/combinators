@@ -149,7 +149,7 @@ class exports {
    method parse(in) {
      print "under pos{in.position} {in.column}@{in.line} ind{in.indentation} tab{tabStop}@{tabLine}"
      if ((in.line == tabLine) ||
-         ((in.line >  tabLine) && (in.column == tabStop)))
+         ((in.line >  tabLine) && (in.indentation == tabStop)))
       then {return parseSuccess(in,"")}
       else {return parseFailure "under!"}
    }
@@ -240,6 +240,7 @@ class exports {
   method offside {offsideWhitespaceParser}
   method onside  {onsideParser}
   method line(d) {lineBreakParser2(d)}
+  method col {underParser}
 }
 
 

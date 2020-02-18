@@ -154,7 +154,6 @@ test2 ";;"
 test2 "helllo(hello(1))"
 test2 "hello(a(1) b(2) c(3))world(d(e(4))); reset(brexit(10,11)) boris(69);foo(42);"
 
-printPassedTests := true
 
 test2 "hello(1)\nhello(2)\nhello(3)"
 test2 "hello(1)\nhello(2)\nhello(3)"
@@ -201,3 +200,23 @@ test2 "hello( 1,\n  2,3,\n  4)"
 test2 "hello( 1,\n  2,3,\n  4); foo(5)"
 
 test2 "  hello(1,2)\n    world(3,4)\ngoodbye(1,2)"
+
+
+printPassedTests := true
+
+
+print"column========================================"
+
+def namelist = wso ~ tab( rep1sep( identifierString, wso ) ) 
+def verticol = wso ~ tab( rep1sep( col ~ identifierString, drop(wsn)   ) ) 
+
+def nl1 = "  a\n    b\n      c\n   d\n"
+def vt1 = "  a\n  b\n  c\n  d\n"
+
+//portray "  T\n    b\n      c\n   d\n"
+//portray "  T\n  bbbbbbbbbbbb\n  c\n  d\n"
+
+test (namelist) on (nl1)
+test (namelist) on (vt1)
+test (verticol) on (nl1)
+test (verticol) on (vt1)
